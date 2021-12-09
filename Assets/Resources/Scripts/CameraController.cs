@@ -6,15 +6,23 @@ public class CameraController : MonoBehaviour
 {
     private void Awake()
     {
-        playerPosition = FindObjectOfType<PlayerController>().transform;
-        offsetX = transform.position.x - playerPosition.position.x;
+        playerPos = FindObjectOfType<PlayerController>().transform;
+        Camera camera = GetComponent<Camera>();
+        camera.rect = screenRect;
+        float verticalSize = camera.orthographicSize;
+        horizontalRatio = screenRect.height / screenRect.width/ verticalSize;
     }
 
     private void LateUpdate()
     {
-        transform.position = new Vector3(offsetX + playerPosition.position.x, transform.position.y, transform.position.z);
+        float offsetX = playerPos.position.x * horizontalRatio * moveRange;
+        transform.position = new Vector3(offsetX, positionOffset.y, positionOffset.z);
     }
 
-    Transform playerPosition;
-    float offsetX;
+
+    Transform playerPos;
+    Rect screenRect = new Rect(0f, 0f, 16f, 9f);
+    Vector3 positionOffset=new Vector3(0f,2f,-10f);
+    float moveRange = 0.5f;
+    float horizontalRatio;
 }
