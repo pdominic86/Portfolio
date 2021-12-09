@@ -8,14 +8,24 @@ public class EventManager : MonoBehaviour
     {
         mapManager = FindObjectOfType<MapManager>();
         playerPosition = FindObjectOfType<PlayerController>().transform;
+        eventList = TextParse.To2DList(Resources.Load<TextAsset>("Texts/EventInfo"));
+        bOccured = new bool[eventList.Count];
     }
 
     private void LateUpdate()
     {
-        if(!bOccured && playerPosition.position.x>point)
+        for(int i=0;i< bOccured.Length;++i)
         {
-            mapManager.StartEvent(eventRange);
-            bOccured = true;
+            if(!bOccured[i])
+            {
+                if ((playerPosition.position.x > eventList[i][0]))
+                {
+                    mapManager.StartEvent(eventList[i][1], eventList[i][2]);
+                    bOccured[i] = true;
+                }
+                break;
+            }
+
         }
     }
 
@@ -24,7 +34,6 @@ public class EventManager : MonoBehaviour
 
     MapManager mapManager;
     Transform playerPosition;
-    float point = 5f;
-    Vector2Int eventRange = new Vector2Int(7, 12);
-    bool bOccured;
+    List<List<int>> eventList;
+    bool[] bOccured;
 }

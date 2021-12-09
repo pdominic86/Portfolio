@@ -10,6 +10,7 @@ public class MapManager : MonoBehaviour
         tileInfo = ScriptableObject.CreateInstance<TileManager>();
         map = FindObjectOfType<Tilemap>();
         mapInfo = TextParse.To2DList(Resources.Load<TextAsset>("Texts/MapInfo"));
+        mapMask = LayerMask.GetMask("Map");
     }
 
     private void Update()
@@ -21,9 +22,10 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    public void StartEvent(Vector2Int _range)
+    public void StartEvent(int _min,int _max)
     {
-        eventRange = _range;
+        eventRange.x=_min;
+        eventRange.y= _max;
         bMapChange = true;
         StartCoroutine(ChangeMap());
     }
@@ -32,58 +34,91 @@ public class MapManager : MonoBehaviour
     {
         while(bMapChange)
         {
-            yield return new WaitForSeconds(0.2f);
-            int x = Random.Range(eventRange.x, eventRange.y);
-            RaycastHit2D hit=Physics2D.Raycast(new Vector2(x,15),Vector2.down);
-            Vector3Int gridPosition = map.WorldToCell(hit.point);
-            int tileIndex = int.Parse(map.GetTile(gridPosition).name);
-            Debug.Log($"{x} : {tileIndex} tile");
-
-            if (mapInfo[gridPosition.x][gridPosition.y]!=tileIndex)
+            yield return new WaitForSeconds(0.1f);
+            if (leftIndex<= eventRange.x)
             {
-                int changeIndex = 0;
+                leftIndex = (eventRange.x+ eventRange.y)/2;
+                rightIndex = leftIndex + 1;
+            }
+            else 
+            {
+                --leftIndex;
+                ++rightIndex;
+                if (rightIndex > eventRange.y)
+                    rightIndex = eventRange.y;
+            }
 
-                if (mapInfo[gridPosition.x][gridPosition.y] == 0)
+            // ¿ÞÂÊ
+            TryChange(leftIndex, -1);
+            TryChange(rightIndex, 1);
+            
+            bool same = true;
+            for (int i = eventRange.x; i <= eventRange.y; ++i)
+            {
+                for (int j = 0; j < 5; ++j)
                 {
+                    if(int.TryParse(map.GetTile(new Vector3Int(i,j,0))?.name,out int result))
+                    {
+                        if(result!=mapInfo[i][j])
+                        {
+                            same = false;
+                            break;
+                        }
+                    }
+                }
+                if (!same)
+                    break;
+            }
+            if (same)
+                    bMapChange = false;
+        }
+    }
+    void TryChange(int _xIndex, int _direction)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(new Vector2(_xIndex, 15), Vector2.down, Mathf.Infinity, mapMask);
+        Vector3Int gridPosition = map.WorldToCell(hit.point);
+        int tileIndex = 0;
+        int.TryParse(map.GetTile(gridPosition)?.name, out tileIndex);
 
+        if (mapInfo[gridPosition.x][gridPosition.y] != tileIndex)
+        {
+            int changeIndex = 0;
+
+            if (mapInfo[gridPosition.x][gridPosition.y] == 0)
+            {
+
+            }
+            else
+            {
+                if (mapInfo[gridPosition.x][gridPosition.y] < 7)
+                {
+                    changeIndex = mapInfo[gridPosition.x][gridPosition.y];
                 }
                 else
                 {
-                    switch(tileIndex)
+
+                    switch (tileIndex)
                     {
                         case 1:
-                            changeIndex = 2;
+                            changeIndex = (_direction > 0 ? 2 : 4);
                             break;
                         case 2:
                         case 4:
                             changeIndex = 3;
                             break;
                         case 3:
-                            changeIndex = 5;
+                            changeIndex = (_direction > 0 ? 11 : 12);
                             break;
-
                     }
                 }
+            }
 
-                if (changeIndex != 0)
-                {
-                    map.SetTile(gridPosition, tileInfo.GetTile(changeIndex));
-                    VerticalChange(gridPosition, changeIndex);
-                    HorizontalChange(gridPosition, changeIndex, -1);
-                    HorizontalChange(gridPosition, changeIndex, 1);
-                }
-
-                bool same = true;
-                for(int i=eventRange.x;i<=eventRange.y;++i)
-                {
-                    if (mapInfo[i][gridPosition.y] != int.Parse(map.GetTile(new Vector3Int(i, gridPosition.y, 0)).name))
-                    {
-                        same = false;
-                        break;
-                    }
-                }
-                if (same)
-                    bMapChange = false;
+            if (changeIndex != 0)
+            {
+                map.SetTile(gridPosition, tileInfo.GetTile(changeIndex));
+                VerticalChange(gridPosition, changeIndex);
+                HorizontalChange(gridPosition, -1);
+                HorizontalChange(gridPosition, 1);
             }
         }
     }
@@ -94,71 +129,68 @@ public class MapManager : MonoBehaviour
         ++up.y;
         Vector3Int down = _pos;
         --down.y;
-
         if(_tileIndex<7)
         {
-            int downTile = int.Parse(map.GetTile(down).name);
             int changedTile = _tileIndex + 6;
+            int downTile = 0;
+            int.TryParse(map.GetTile(down)?.name, out downTile);
             if (downTile != changedTile)
+            {
                 map.SetTile(down, tileInfo.GetTile(changedTile));
+                VerticalChange(down, changedTile);
+            }
         }
-        else if(_tileIndex<11)
+        else 
         {
-            int upTile = int.Parse(map.GetTile(up).name);
-            int changedTile = _tileIndex - 6;
-            if (upTile != changedTile)
-                map.SetTile(up, tileInfo.GetTile(changedTile));
-        }
-        else
-        {
-            int upTile = int.Parse(map.GetTile(up).name);
             int changedTile = _tileIndex -6;
+            int upTile = 0;
+            int.TryParse(map.GetTile(up)?.name, out upTile);
             if (upTile != changedTile)
                 map.SetTile(up, tileInfo.GetTile(changedTile));
 
-            int downTile = int.Parse(map.GetTile(down).name);
             changedTile = 9;
+            int downTile = 0;
+            int.TryParse(map.GetTile(down)?.name, out downTile);
             if (downTile != changedTile)
                 map.SetTile(down, tileInfo.GetTile(changedTile));
         }
 
     }
 
-    void HorizontalChange(Vector3Int _pos, int _tileIndex, int _direction)
+    void HorizontalChange(Vector3Int _pos, int _direction)
     {
         Vector3Int left = _pos;
-        Vector3Int right = _pos;
         Vector3Int center = _pos;
+        Vector3Int right = _pos;
         int leftTile = 0;
-        int rightTile = 0;
         int centerTile = 0;
+        int rightTile = 0;
         if (_direction < 0)
         {
             --center.x;
             left.x += -2;
-            centerTile = int.Parse(map.GetTile(center).name);
-            leftTile = int.Parse(map.GetTile(left).name);
-            rightTile = _tileIndex;
         }
         else
         {
             ++center.x;
             right.x += 2;
-            centerTile = int.Parse(map.GetTile(center).name);
-            rightTile = int.Parse(map.GetTile(right).name);
-            leftTile = _tileIndex;
         }
+        int.TryParse(map.GetTile(left)?.name, out leftTile);
+        int.TryParse(map.GetTile(center)?.name, out centerTile);
+        int.TryParse(map.GetTile(right)?.name, out rightTile);
 
-        int changedTile = tileInfo.GetTile(tileInfo.GetRightPoint(leftTile), tileInfo.GetLeftPoint(rightTile));
-        Debug.Log($"{leftTile} : {tileInfo.GetRightPoint(leftTile)}");
-        Debug.Log($"{rightTile} : {tileInfo.GetLeftPoint(rightTile)}");
+        int changedTile = 0;
+        if (leftTile!=0 && rightTile!=0)
+            changedTile = tileInfo.GetTile(tileInfo.GetRightPoint(leftTile), tileInfo.GetLeftPoint(rightTile));
+
         if (changedTile != 0 && changedTile != centerTile)
         {
             map.SetTile(center, tileInfo.GetTile(changedTile));
             VerticalChange(center, changedTile);
-            HorizontalChange(center, changedTile, _direction);
+            HorizontalChange(center, _direction);
         }
     }
+
 
     TileManager tileInfo;
     Tilemap map;
@@ -166,4 +198,8 @@ public class MapManager : MonoBehaviour
 
     bool bMapChange;
     Vector2Int eventRange = new Vector2Int();
+    int leftIndex;
+    int rightIndex;
+    int eventDirection;
+    int mapMask;
 }

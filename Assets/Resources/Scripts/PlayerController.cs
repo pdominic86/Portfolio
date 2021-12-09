@@ -26,6 +26,15 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         bJump = false;
+        if(collision.transform.tag=="Rock")
+            rigidbody.constraints ^= RigidbodyConstraints2D.FreezePositionX;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        bJump = false;
+        if (collision.transform.tag == "Rock")
+            rigidbody.constraints ^= RigidbodyConstraints2D.FreezePositionX;
     }
 
     Rigidbody2D rigidbody;
