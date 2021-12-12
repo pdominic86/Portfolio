@@ -15,7 +15,7 @@ public enum eGroupKey
 public delegate void DelayAction();
 
 
-class Func
+class CoroutineFunc
 {
     public static IEnumerator DelayCoroutine(DelayAction _func, float time)
     {

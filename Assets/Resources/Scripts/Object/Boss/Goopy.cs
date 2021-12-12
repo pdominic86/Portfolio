@@ -19,83 +19,145 @@ public class Goopy : Boss
 
         // Animator 설정
         animator = GetComponent<Animator>();
-
-        // 방향 설정
-        direction = -1f;
-
-        // State 설정
-        phase = ePhase.SPAWN;
-        action = eAction.INTRO;
-        actionState = eActionState.READY;
     }
 
     private void Start()
     {
-        // Target 설정
-        targetPosition = FindObjectOfType<PlayerController>().transform;
+        Initialize();
+    }
 
-        // Boundary 설정
-        boundaryX = SceneManager.Instance.BoundaryX;
-        boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
-        boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
+    private void OnEnable()
+    {
+        Initialize();
+    }
+
+    private void OnDisable()
+    {
+        // 물리 영향 없앰
+        rigidbody.gravityScale = 0f;
+        rigidbody.velocity = Vector2.zero;
+
+        // 방향 초기화
+        Vector3 scale = transform.localScale;
+        if (scale.x < 0f)
+        {
+            scale.x = -scale.x;
+            transform.localScale = scale;
+        }
     }
 
     void Update()
     {
         switch (phase)
         {
-            case ePhase.SPAWN:
+
+            case ePhase.PHASE_1:
+                if (action == eAction.INTRO)
                 {
-                    if (actionState == eActionState.READY)
+                    if (actionState == eActionState.START)
                     {
-                        animator.SetTrigger("spawn");
+                        animator.SetTrigger("intro_phase1");
                         actionState = eActionState.ACT;
-                        StartCoroutine(Func.DelayCoroutine(() => { actionState = eActionState.FINISH; }, spawnDelay));
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, introDelay));
                     }
-                    else if(actionState == eActionState.FINISH)
+                    else if (actionState == eActionState.FINISH)
                     {
-                        phase = ePhase.PHASE_1;
                         action = eAction.IDLE;
+                        actionState = eActionState.START;
+                    }
+                }
+                else if (action == eAction.IDLE)
+                {
+                    targetCount = Random.Range(minCount, maxCount);
+                    action = eAction.JUMP;
+                    actionState = eActionState.SELECT;
+                }
+                else if (action == eAction.JUMP)
+                {
+                    if (actionState == eActionState.SELECT)
+                    {
+                        if (hp < phase2Start)
+                        {
+                            phase = ePhase.PHASE_2;
+                            action = eAction.INTRO;
+                        }
+                        else if (jumpCount >= targetCount)
+                        {
+                            if (targetPosition.position.x < transform.position.x && direction > 0f)
+                                Direction = -1f;
+                            else if (targetPosition.position.x > transform.position.x && direction < 0f)
+                                Direction = 1f;
+
+                            jumpCount = 0;
+                            targetCount = Random.Range(minCount, maxCount);
+                            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { action = eAction.ATTACK; actionState = eActionState.START; }, jumpDelay));
+                        }
+                        else
+                        {
+                            ++jumpCount;
+                            StartCoroutine(CoroutineFunc.DelayCoroutine(Jump, jumpDelay));
+                        }
+
+                        animator.SetTrigger("ready");
                         actionState = eActionState.READY;
                     }
-                }
-                break;
-            case ePhase.PHASE_1:
-                if (action == eAction.IDLE)
-                {
-                    if(jumpCount> maxCount)
+                    else if (actionState == eActionState.ACT)
                     {
-                        if ((direction < 0f && targetPosition.position.x < transform.position.x) || (direction > 0f && targetPosition.position.x > transform.position.x))
+                        Vector3 position = transform.position;
+                        if (position.x < boundaryX.x || position.x > boundaryX.y)
                         {
-                            jumpCount = 0;
-                            action = eAction.ATTACK;
-                            actionState = eActionState.READY;
+                            position.x = (position.x < 0f ? boundaryX.x : boundaryX.y);
+                            transform.position = position;
+                            Vector3 force = rigidbody.velocity;
+                            force.x *= -1f;
+                            rigidbody.velocity = force;
+                            direction *= -1f;
+                            Vector3 scale = transform.localScale;
+                            scale.x *= -1f;
+                            transform.localScale = scale;
                         }
-                            animator.SetTrigger("punch");
-                            StartCoroutine(DelayCoroutine(() => { eState = State.IDLE; }, 1.5f));
-                            return;
+                        if (!bDownForce && rigidbody.velocity.y < 0f)
+                        {
+                            bDownForce = true;
+                            animator.SetTrigger("down_force");
+                        }
+                        if (transform.position.y < 0f)
+                        {
+                            bDownForce = false;
+                            actionState = eActionState.FINISH;
+                            rigidbody.gravityScale = 0f;
+                            rigidbody.velocity = Vector2.zero;
+                            position.y = 0f;
+                            transform.position = position;
+                        }
                     }
-                    ++jumpCount;
-                    eState = State.JUMP_READY;
-                    StartCoroutine(DelayCoroutine(() => { eState = State.JUMP; }, 1f));
+                    else if (actionState == eActionState.FINISH)
+                    {
+                        animator.SetBool("jump", false);
+                        actionState = eActionState.SELECT;
+                    }
                 }
-                else if(eState == State.JUMP)
+                else if (action == eAction.ATTACK)
                 {
-                    rigidbody.gravityScale = gravity;
-                    rigidbody.AddForce(new Vector2(direction, 3f) * Random.Range(minJumpForce, maxJumpForce), ForceMode2D.Impulse);
-                    eState = State.IN_AIR;
+                    if(actionState== eActionState.START)
+                    {
+                        animator.SetTrigger("punch");
+                        actionState = eActionState.ACT;
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay));
+                    }
+                    else if(actionState==eActionState.FINISH)
+                    {
+                        action = eAction.JUMP; 
+                        actionState = eActionState.SELECT;
+                    }
                 }
 
-                if (hp < phase2Start)
-                {
-                    ePhase = Phase.PHASE_2;
-                    eState = State.INTRO;
-                }
-                    break;
-            case Phase.PHASE_2:
 
-                    break;
-            case Phase.PHASE_3:
+                break;
+            case ePhase.PHASE_2:
+
+                break;
+            case ePhase.PHASE_3:
                 break;
             default:
                 break;
@@ -104,37 +166,16 @@ public class Goopy : Boss
 
     private void LateUpdate()
     {
-        Vector3 position = transform.position;
-        if (position.x< boundaryX.x || position.x > boundaryX.y)
-        {
-            position.x = (position.x < 0f ? boundaryX.x : boundaryX.y);
-            transform.position = position;
-            Vector3 force = rigidbody.velocity;
-            force.x *= -1f;
-            rigidbody.velocity = force;
-            direction *= -1f;
-            Vector3 scale = transform.localScale;
-            scale.x *= -1f;
-            transform.localScale = scale;
-        }
 
-        if (transform.position.y < 0f)
-        {
-            eState = State.IDLE;
-            rigidbody.gravityScale = 0f;
-            rigidbody.velocity = Vector2.zero;
-            position.y = 0f;
-            transform.position = position;
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Prefab target=collision.gameObject.GetComponent<Prefab>();
+        Prefab target = collision.gameObject.GetComponent<Prefab>();
         if (target == null)
             return;
 
-        if(target.GroupKey==eGroupKey.BULLET)
+        if (target.GroupKey == eGroupKey.BULLET)
         {
             Bullet bullet = target as Bullet;
             hp -= bullet.Damage;
@@ -143,15 +184,43 @@ public class Goopy : Boss
         }
     }
 
-    IEnumerator DelayCoroutine(DelayAction _func,float time)
+
+
+
+
+    // ** Self-defind
+    // 초기화 (OnEnable, Start에서 쓰기 위함)
+    private void Initialize()
     {
-        yield return new WaitForSeconds(time);
-        _func();
+        // Target 설정
+        targetPosition = FindObjectOfType<PlayerController>().transform;
+
+        // Boundary 설정
+        boundaryX = SceneManager.Instance.BoundaryX;
+        boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
+        boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
+
+        // 방향 설정
+        direction = -1f;
+
+        // State 설정
+        phase = ePhase.PHASE_1;
+        action = eAction.INTRO;
+        actionState = eActionState.START;
+    }
+
+    // 점프 함수
+    private void Jump()
+    {
+        rigidbody.gravityScale = gravity;
+        Vector2 force = new Vector2(direction, 3f) * Random.Range(minJumpForce, maxJumpForce);
+        rigidbody.AddForce(force, ForceMode2D.Impulse);
+        actionState = eActionState.ACT;
+        animator.SetBool("jump", true);
     }
 
 
-
-    // Getter && Setter
+    // **  Getter && Setter
     public override eObjectKey ObjectKey { get => eObjectKey.GOOPY; }
 
 
@@ -159,14 +228,18 @@ public class Goopy : Boss
 
     // 점프 관련
     Rigidbody2D rigidbody;
-    float minJumpForce = 4.1f;
-    float maxJumpForce = 5.1f;
-    float gravity = 3f;
-    // phase 공격패턴 관련
+    float minJumpForce = 5.6f;
+    float maxJumpForce = 6.5f;
+    float gravity = 5f;
+    bool bDownForce;
+
+    // phase1 공격패턴 관련
     Transform targetPosition;
     int jumpCount;
-    int maxCount =4;
-    
+    int targetCount;
+    int minCount = 4;
+    int maxCount = 8;
+
     // 상태 관련
     [SerializeField] ePhase phase;
     [SerializeField] eAction action;
@@ -175,19 +248,20 @@ public class Goopy : Boss
 
     // 애니메이션 관련
     Animator animator;
-    float spawnDelay = 2f;
-
+    float introDelay = 2.8f;
+    float jumpDelay = 0.75f;
+    float attackDelay = 1.4f;
 
     // 충돌 관련
     CapsuleCollider2D collider;
-    int hp=200;
+    int hp = 200;
     const int phase2Start = 130;
     const int phase3Start = 60;
 
     // coroutine 사용 함수
     delegate void DelayAction();
 
-    enum ePhase { SPAWN, PHASE_1, PHASE_2, PHASE_3 }
-    enum eAction { INTRO, IDLE, JUMP,  ATTACK }
-    enum eActionState { READY, START, ACT, FINISH }
+    enum ePhase { PHASE_1, PHASE_2, PHASE_3 }
+    enum eAction { INTRO, IDLE, JUMP, ATTACK }
+    enum eActionState { READY, SELECT, START, ACT, FINISH }
 }

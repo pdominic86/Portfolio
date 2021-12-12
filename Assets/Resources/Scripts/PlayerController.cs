@@ -72,7 +72,7 @@ public class PlayerController : Prefab
             firePosition += (direction < 0f ? leftOffset : rightOffset);
             ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET, firePosition, direction);
             bFire = true;
-            StartCoroutine(Func.DelayCoroutine(() => { bFire = false; }, 0.5f));
+            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bFire = false; }, fireDelay));
         }
         // มกวม
         if (!bJump && Input.GetKey(KeyCode.X))
@@ -112,4 +112,5 @@ public class PlayerController : Prefab
     Vector3 rightOffset = new Vector3(0.45f, 0.55f, 0f);
     Vector3 leftOffset = new Vector3(-0.45f, 0.55f, 0f);
     bool bFire;
+    float fireDelay = 0.2f;
 }
