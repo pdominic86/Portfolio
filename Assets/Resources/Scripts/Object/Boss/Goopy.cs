@@ -58,7 +58,7 @@ public class Goopy : Boss
                     {
                         animator.SetTrigger("intro_phase1");
                         actionState = eActionState.ACT;
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, introDelay));
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, introDelay_Phase1));
                     }
                     else if (actionState == eActionState.FINISH)
                     {
@@ -71,6 +71,7 @@ public class Goopy : Boss
                     targetCount = Random.Range(minCount, maxCount);
                     action = eAction.JUMP;
                     actionState = eActionState.SELECT;
+                    animator.SetBool("ready", true);
                 }
                 else if (action == eAction.JUMP)
                 {
@@ -78,8 +79,9 @@ public class Goopy : Boss
                     {
                         if (hp < phase2Start)
                         {
-                            phase = ePhase.PHASE_2;
-                            action = eAction.INTRO;
+                            --minCount;
+                            --maxCount;
+                            StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase2, jumpDelay));
                         }
                         else if (jumpCount >= targetCount)
                         {
@@ -97,8 +99,6 @@ public class Goopy : Boss
                             ++jumpCount;
                             StartCoroutine(CoroutineFunc.DelayCoroutine(Jump, jumpDelay));
                         }
-
-                        animator.SetTrigger("ready");
                         actionState = eActionState.READY;
                     }
                     else if (actionState == eActionState.ACT)
@@ -143,7 +143,7 @@ public class Goopy : Boss
                     {
                         animator.SetTrigger("punch");
                         actionState = eActionState.ACT;
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay));
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay_Phase1));
                     }
                     else if(actionState==eActionState.FINISH)
                     {
@@ -151,12 +151,105 @@ public class Goopy : Boss
                         actionState = eActionState.SELECT;
                     }
                 }
-
-
                 break;
             case ePhase.PHASE_2:
+                if (action == eAction.INTRO)
+                {
+                    if (actionState == eActionState.START)
+                    {
+                        animator.SetTrigger("intro_phase2");
+                        actionState = eActionState.ACT;
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, introDelay_Phase2));
+                    }
+                    else if (actionState == eActionState.FINISH)
+                    {
+                        action = eAction.IDLE;
+                        actionState = eActionState.START;
+                    }
+                }
+                else if (action == eAction.IDLE)
+                {
+                    targetCount = Random.Range(minCount, maxCount);
+                    action = eAction.JUMP;
+                    actionState = eActionState.SELECT;
+                    animator.SetBool("ready",true);
+                }
+                else if (action == eAction.JUMP)
+                {
+                    if (actionState == eActionState.SELECT)
+                    {
+                        if (hp < phase3Start)
+                            StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase2, jumpDelay));
+                        else if (jumpCount >= targetCount)
+                        {
+                            if (targetPosition.position.x < transform.position.x && direction > 0f)
+                                Direction = -1f;
+                            else if (targetPosition.position.x > transform.position.x && direction < 0f)
+                                Direction = 1f;
 
+                            jumpCount = 0;
+                            targetCount = Random.Range(minCount, maxCount);
+                            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { action = eAction.ATTACK; actionState = eActionState.START; }, jumpDelay));
+                        }
+                        else
+                        {
+                            ++jumpCount;
+                            StartCoroutine(CoroutineFunc.DelayCoroutine(Jump, jumpDelay));
+                        }
+                        actionState = eActionState.READY;
+                    }
+                    else if (actionState == eActionState.ACT)
+                    {
+                        Vector3 position = transform.position;
+                        if (position.x < boundaryX.x || position.x > boundaryX.y)
+                        {
+                            position.x = (position.x < 0f ? boundaryX.x : boundaryX.y);
+                            transform.position = position;
+                            Vector3 force = rigidbody.velocity;
+                            force.x *= -1f;
+                            rigidbody.velocity = force;
+                            direction *= -1f;
+                            Vector3 scale = transform.localScale;
+                            scale.x *= -1f;
+                            transform.localScale = scale;
+                        }
+                        if (!bDownForce && rigidbody.velocity.y < 0f)
+                        {
+                            bDownForce = true;
+                            animator.SetTrigger("down_force");
+                        }
+                        if (transform.position.y < 0f)
+                        {
+                            bDownForce = false;
+                            actionState = eActionState.FINISH;
+                            rigidbody.gravityScale = 0f;
+                            rigidbody.velocity = Vector2.zero;
+                            position.y = 0f;
+                            transform.position = position;
+                        }
+                    }
+                    else if (actionState == eActionState.FINISH)
+                    {
+                        animator.SetBool("jump", false);
+                        actionState = eActionState.SELECT;
+                    }
+                }
+                else if (action == eAction.ATTACK)
+                {
+                    if (actionState == eActionState.START)
+                    {
+                        animator.SetTrigger("punch");
+                        actionState = eActionState.ACT;
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay_Phase2));
+                    }
+                    else if (actionState == eActionState.FINISH)
+                    {
+                        action = eAction.JUMP;
+                        actionState = eActionState.SELECT;
+                    }
+                }
                 break;
+
             case ePhase.PHASE_3:
                 break;
             default:
@@ -207,6 +300,10 @@ public class Goopy : Boss
         phase = ePhase.PHASE_1;
         action = eAction.INTRO;
         actionState = eActionState.START;
+
+        // jump count
+        int minCount = 4;
+        int maxCount = 8;
     }
 
     // 점프 함수
@@ -219,6 +316,15 @@ public class Goopy : Boss
         animator.SetBool("jump", true);
     }
 
+    private void ToPhase2()
+    {
+        phase = ePhase.PHASE_2;
+        action = eAction.INTRO;
+        actionState = eActionState.START;
+        jumpCount = 0;
+        animator.SetBool("ready", false);
+    }
+
 
     // **  Getter && Setter
     public override eObjectKey ObjectKey { get => eObjectKey.GOOPY; }
@@ -229,7 +335,7 @@ public class Goopy : Boss
     // 점프 관련
     Rigidbody2D rigidbody;
     float minJumpForce = 5.6f;
-    float maxJumpForce = 6.5f;
+    float maxJumpForce = 7.8f;
     float gravity = 5f;
     bool bDownForce;
 
@@ -248,14 +354,16 @@ public class Goopy : Boss
 
     // 애니메이션 관련
     Animator animator;
-    float introDelay = 2.8f;
-    float jumpDelay = 0.75f;
-    float attackDelay = 1.4f;
+    float introDelay_Phase1 = 2.8f;
+    float introDelay_Phase2 = 5f;
+    float jumpDelay = 0.7f;
+    float attackDelay_Phase1 = 1.4f;
+    float attackDelay_Phase2 = 2.5f;
 
     // 충돌 관련
     CapsuleCollider2D collider;
     int hp = 200;
-    const int phase2Start = 130;
+    const int phase2Start = 195;
     const int phase3Start = 60;
 
     // coroutine 사용 함수

@@ -22,7 +22,7 @@ public class CameraController : MonoBehaviour
 
     Transform playerPos;
     Rect screenRect = new Rect(0f, 0f, 16f, 9f);
-    Vector3 positionOffset=new Vector3(0f,2f,-10f);
+    Vector3 positionOffset=new Vector3(0f,2.2f,-10f);
     float moveRange = 0.5f;
     float horizontalRatio;
 }
