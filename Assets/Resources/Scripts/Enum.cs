@@ -4,12 +4,24 @@ using UnityEngine;
 
 public enum eObjectKey
 {
-    NORMAL_BULLET,GOOPY,PLAYER
+    // player
+    PLAYER,
+    // bullet
+    NORMAL_BULLET,
+    // boss
+    GOOPY,
+    TOMBSTONE,
+    //effect
+    GOOPY_EXPLODE
 };
 
 public enum eGroupKey
 {
-    BULLET,ENEMY,BOSS, PLAYER
+    PLAYER,
+    BULLET,
+    BOSS,
+    ENEMY,
+    EFFECT
 }
 
 public delegate void DelayAction();

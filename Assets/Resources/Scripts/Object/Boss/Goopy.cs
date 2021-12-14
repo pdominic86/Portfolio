@@ -19,6 +19,9 @@ public class Goopy : Boss
 
         // Animator 설정
         animator = GetComponent<Animator>();
+
+        // 체력
+        maxHp = 200;
     }
 
     private void Start()
@@ -44,6 +47,8 @@ public class Goopy : Boss
             scale.x = -scale.x;
             transform.localScale = scale;
         }
+
+        ObjectManager.Instance.NewObject(eObjectKey.GOOPY_EXPLODE, transform.position);
     }
 
     void Update()
@@ -179,7 +184,7 @@ public class Goopy : Boss
                     if (actionState == eActionState.SELECT)
                     {
                         if (hp < phase3Start)
-                            StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase2, jumpDelay));
+                            action = eAction.DEATH;
                         else if (jumpCount >= targetCount)
                         {
                             if (targetPosition.position.x < transform.position.x && direction > 0f)
@@ -248,18 +253,20 @@ public class Goopy : Boss
                         actionState = eActionState.SELECT;
                     }
                 }
-                break;
+                else if (action == eAction.DEATH)
+                {
+                    if(actionState==eActionState.READY)
+                    {
+                        actionState = eActionState.ACT;
+                        animator.SetBool("death", true);
+                        StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase3, introDelay_Phase3));
+                    }
+                }
+                    break;
 
-            case ePhase.PHASE_3:
-                break;
             default:
                 break;
         }
-    }
-
-    private void LateUpdate()
-    {
-
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -273,7 +280,6 @@ public class Goopy : Boss
             Bullet bullet = target as Bullet;
             hp -= bullet.Damage;
             ObjectManager.Instance.RecallObject(collision.gameObject);
-            Debug.Log(hp);
         }
     }
 
@@ -304,12 +310,15 @@ public class Goopy : Boss
         // jump count
         int minCount = 4;
         int maxCount = 8;
+
+        //체력
+        hp = maxHp;
     }
 
     // 점프 함수
     private void Jump()
     {
-        rigidbody.gravityScale = gravity;
+        rigidbody.gravityScale = gravityScale;
         Vector2 force = new Vector2(direction, 3f) * Random.Range(minJumpForce, maxJumpForce);
         rigidbody.AddForce(force, ForceMode2D.Impulse);
         actionState = eActionState.ACT;
@@ -325,10 +334,14 @@ public class Goopy : Boss
         animator.SetBool("ready", false);
     }
 
+    private void ToPhase3()
+    {
+        ObjectManager.Instance.NewObject(eObjectKey.TOMBSTONE, transform.position + new Vector3(0f, height));
+    }
+
 
     // **  Getter && Setter
     public override eObjectKey ObjectKey { get => eObjectKey.GOOPY; }
-
 
 
 
@@ -336,10 +349,10 @@ public class Goopy : Boss
     Rigidbody2D rigidbody;
     float minJumpForce = 5.6f;
     float maxJumpForce = 7.8f;
-    float gravity = 5f;
+    float gravityScale = 5f;
     bool bDownForce;
 
-    // phase1 공격패턴 관련
+    // 점프 관련
     Transform targetPosition;
     int jumpCount;
     int targetCount;
@@ -356,20 +369,23 @@ public class Goopy : Boss
     Animator animator;
     float introDelay_Phase1 = 2.8f;
     float introDelay_Phase2 = 5f;
+    float introDelay_Phase3 = 3f;
     float jumpDelay = 0.7f;
     float attackDelay_Phase1 = 1.4f;
     float attackDelay_Phase2 = 2.5f;
 
+    // Phase3 관련
+    float height = 10f;
+
     // 충돌 관련
     CapsuleCollider2D collider;
-    int hp = 200;
     const int phase2Start = 195;
-    const int phase3Start = 60;
+    const int phase3Start = 185;
 
     // coroutine 사용 함수
     delegate void DelayAction();
 
-    enum ePhase { PHASE_1, PHASE_2, PHASE_3 }
-    enum eAction { INTRO, IDLE, JUMP, ATTACK }
+    enum ePhase { PHASE_1, PHASE_2 }
+    enum eAction { INTRO, IDLE, JUMP, ATTACK, DEATH }
     enum eActionState { READY, SELECT, START, ACT, FINISH }
 }
