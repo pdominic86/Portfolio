@@ -12,10 +12,7 @@ public class Goopy : Boss
         rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         // Collider 설정
-        collider = gameObject.AddComponent<CapsuleCollider2D>();
-        collider.offset = new Vector2(0f, 0.86f);
-        collider.size = new Vector2(1.2f, 1.58f);
-        collider.isTrigger = true;
+        collider = gameObject.GetComponent<CapsuleCollider2D>();
 
         // Animator 설정
         animator = GetComponent<Animator>();
@@ -48,7 +45,6 @@ public class Goopy : Boss
             transform.localScale = scale;
         }
 
-        ObjectManager.Instance.NewObject(eObjectKey.GOOPY_EXPLODE, transform.position);
     }
 
     void Update()
@@ -294,6 +290,11 @@ public class Goopy : Boss
         // Target 설정
         targetPosition = FindObjectOfType<PlayerController>().transform;
 
+        collider.direction = CapsuleDirection2D.Vertical;
+        collider.offset = new Vector2(0f, 0.85f);
+        collider.size = new Vector2(1.38f, 1.48f);
+        collider.isTrigger = true;
+
         // Boundary 설정
         boundaryX = SceneManager.Instance.BoundaryX;
         boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
@@ -332,6 +333,9 @@ public class Goopy : Boss
         actionState = eActionState.START;
         jumpCount = 0;
         animator.SetBool("ready", false);
+        collider.direction = CapsuleDirection2D.Horizontal;
+        collider.offset = new Vector2(0f, 1.79f);
+        collider.size = new Vector2(3f, 3f);
     }
 
     private void ToPhase3()
@@ -341,7 +345,7 @@ public class Goopy : Boss
 
 
     // **  Getter && Setter
-    public override eObjectKey ObjectKey { get => eObjectKey.GOOPY; }
+    public override eObjectKey ObjectKey  => eObjectKey.GOOPY; 
 
 
 

@@ -19,7 +19,10 @@ public class SceneManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
 
-
+    }
+    private void Start()
+    {
+        ObjectManager.Instance.NewObject(eObjectKey.GOOPY);
     }
 
 

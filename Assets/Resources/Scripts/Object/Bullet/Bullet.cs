@@ -15,8 +15,8 @@ public abstract class Bullet : Prefab
     }
 
     // ** Getter & Setter
-    public override eGroupKey GroupKey { get => eGroupKey.BULLET; }
-    public virtual eObjectKey ObjectKey { get; }
+    public override eGroupKey GroupKey => eGroupKey.BULLET; 
+    public override eObjectKey ObjectKey { get; }
 
     public int Damage { get => damage; }
 

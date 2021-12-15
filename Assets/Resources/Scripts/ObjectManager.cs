@@ -20,7 +20,9 @@ public class ObjectManager : MonoBehaviour
         var prefabs = Resources.LoadAll<GameObject>("Prefabs");
         foreach(var prefab in prefabs)
         {
-            prefabList.Add(prefab.GetComponent<Prefab>().ObjectKey, prefab);
+            eObjectKey key = prefab.GetComponent<Prefab>().ObjectKey;
+            if(!prefabList.ContainsKey(key))
+                prefabList.Add(prefab.GetComponent<Prefab>().ObjectKey, prefab);
         }
     }
 

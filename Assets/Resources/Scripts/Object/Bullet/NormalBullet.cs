@@ -45,5 +45,5 @@ public class NormalBullet : Bullet
     }
 
     // ** Getter & Setter
-    public override eObjectKey ObjectKey { get => eObjectKey.NORMAL_BULLET; }
+    public override eObjectKey ObjectKey => eObjectKey.NORMAL_BULLET;
 }
