@@ -17,6 +17,8 @@ public class PlayerController : Prefab
         collider.size = new Vector2(0.43f, 0.95f);
         collider.isTrigger = true;
 
+        animator = GetComponent<Animator>();
+
         // 기본 방향 설정
         direction = 1f;
     }
@@ -27,17 +29,25 @@ public class PlayerController : Prefab
         boundaryX = SceneManager.Instance.BoundaryX;
         boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
         boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
+
+        action = eAction.IDLE;
+        actionState = eActionState.START;
     }
 
 
     void Update()
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
+        // input check
+        ulong input = Keys.InputCheck();
+        SetNextAction(input);
+        if ((input & Keys.left)!=0 && direction > 0f)
+        {
+        }
         if (horizontalInput != 0f)
         {
             // 이동 관련
             transform.position += speed * horizontalInput * Time.deltaTime * Vector3.right;
-            
+
             // 방향 관련
             direction = (horizontalInput < 0f ? -1f : 1f);
             Vector3 scale = transform.localScale;
@@ -46,7 +56,72 @@ public class PlayerController : Prefab
                 scale.x *= -1f;
                 transform.localScale = scale;
             }
+
+            if(action==eAction.IDLE)
+            {
+                action = eAction.MOVE;
+                animator.SetBool("run", true);
+            }
         }
+        else
+        {
+
+        }
+
+
+
+        if (Input.GetKey(KeyCode.C))
+        {
+
+        }
+
+        // state
+        switch (action)
+        {
+            case eAction.IDLE:
+                {
+                    if(horizontalInput!=0f)
+                    {
+                        action = eAction.MOVE;
+                        actionState = eActionState.START;
+
+
+                    }
+                }
+                break;
+            case eAction.MOVE:
+                {
+                    if (actionState == eActionState.START)
+                    {
+                        animator.SetBool("run", true);
+                        actionState = eActionState.ACT;
+                    }
+                    else if (actionState == eActionState.ACT)
+                    {
+                        if(horizontalInput==0f)
+                        {
+                            action = eAction.IDLE;
+                            animator.SetBool("run", false);
+                        }
+                        else
+                        {
+                            transform.position += speed * horizontalInput * Time.deltaTime * Vector3.right;
+                        }
+                    }
+                }
+                break;
+            case eAction.JUMP:
+                break;
+            case eAction.ATTACK:
+                break;
+            case eAction.DEATH:
+                break;
+            default:
+                break;
+        }
+
+
+
         // boundary 관련
         Vector3 position = transform.position;
         if (position.x < boundaryX.x || transform.position.x > boundaryX.y)
@@ -89,7 +164,24 @@ public class PlayerController : Prefab
     }
 
 
+    void SetNextAction(ulong _input)
+    {
+        if((_input&Keys.shoot)!=0)
+        {
+            if((_input&Keys.left)!=0 || (_input & Keys.right) != 0)
+            {
+                nextAction = eAction.MOVE_AND_ATTACK;
+            }
+            if ((_input & Keys.left) != 0)
+            {
 
+            }
+        }
+        else
+        {
+
+        }
+    }
 
     // ** Getter && Setter
     // key
@@ -113,4 +205,16 @@ public class PlayerController : Prefab
     Vector3 leftOffset = new Vector3(-0.45f, 0.55f, 0f);
     bool bFire;
     float fireDelay = 0.2f;
+
+    // 애니메이션 관련
+    Animator animator;
+
+
+    // 상태 관련
+    eAction action;
+    eAction nextAction;
+    eActionState actionState;
+
+    enum eAction { NONE, INTRO, IDLE, MOVE, JUMP, ATTACK, MOVE_AND_ATTACK,HIT, DEATH }
+    enum eActionState { READY, SELECT, START, ACT, FINISH }
 }
