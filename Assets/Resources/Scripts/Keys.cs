@@ -11,6 +11,7 @@ public class Keys
     public static KeyCode KEY_JUMP = KeyCode.Z;
     public static KeyCode KEY_SHOOT = KeyCode.X;
     public static KeyCode KEY_DASH = KeyCode.LeftShift;
+    public static KeyCode KEY_LOCK = KeyCode.A;
 
     public static uint up = 0x00000001;
     public static uint down = 0x00000010;
@@ -19,6 +20,7 @@ public class Keys
     public static uint jump = 0x00010000;
     public static uint shoot = 0x00100000;
     public static uint dash = 0x01000000;
+    public static uint locked = 0x10000000;
 
     public static ulong InputCheck()
     {
@@ -37,6 +39,8 @@ public class Keys
             input |= shoot;
         if (Input.GetKey(KEY_DASH))
             input |= dash;
+        if (Input.GetKey(KEY_LOCK))
+            input |= locked;
 
         return input;
     }

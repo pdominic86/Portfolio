@@ -7,7 +7,8 @@ public abstract class Bullet : Prefab
     // ** unity Á¦°ø
     protected void Update()
     {
-        transform.position += speed * direction * Time.deltaTime * Vector3.right;
+        Vector3 forward = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));
+        transform.position+=speed * Time.deltaTime * forward;
         if (transform.position.x < boundaryX.x || transform.position.x > boundaryX.y)
         {
             ObjectManager.Instance.RecallObject(gameObject);

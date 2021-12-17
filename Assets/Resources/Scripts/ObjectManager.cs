@@ -68,7 +68,14 @@ public class ObjectManager : MonoBehaviour
     public GameObject NewObject(eObjectKey _key, Vector3 _position,float _direction)
     {
         var obj = NewObject(_key, _position);
-        obj.GetComponent<Prefab>().Direction = (_direction < 0f ? -1f : 1f);
+        obj.GetComponent<Prefab>().Direction = _direction;
+        return obj;
+    }
+
+    public GameObject NewObject(eObjectKey _key, Vector3 _position, int angle)
+    {
+        var obj = NewObject(_key, _position);
+        obj.GetComponent<Prefab>().Angle = angle;
         return obj;
     }
 

@@ -39,10 +39,117 @@ public class PlayerController : Prefab
     {
         // input check
         ulong input = Keys.InputCheck();
-        SetNextAction(input);
-        if ((input & Keys.left)!=0 && direction > 0f)
+
+        // 방향전환
+        if ((input & Keys.left) != 0)
+            direction = -1f;
+        else if((input & Keys.right) != 0)
+            direction = 1f;
+
+        Vector3 scale = transform.localScale;
+        if (direction * scale.x < 0f)
         {
+            scale.x *= -1f;
+            transform.localScale = scale;
         }
+
+        // 이동상태 관련
+        if ((input & Keys.left) != 0 || (input & Keys.right) != 0)
+        {
+            if ((input & Keys.locked) != 0 || (input & Keys.down) != 0)
+                action = eAction.IDLE;
+            else
+                action = eAction.MOVE;
+        }
+        else
+            action = eAction.IDLE;
+
+        if ((input & Keys.down) != 0)
+            animator.SetBool("duck", true);
+        else
+            animator.SetBool("duck", false);
+
+
+        animator.SetBool("straight", false);
+        animator.SetBool("diagonal", false);
+        animator.SetBool("up", false);
+        if ((input & Keys.shoot) != 0)
+        {
+            int offsetIndex = 0;
+            animator.SetBool("shoot", true);
+            if ((input & Keys.up) != 0)
+            {
+                if ((input & Keys.left) != 0 || (input & Keys.right) != 0)
+                {
+                    animator.SetBool("diagonal", true);
+                    offsetIndex = (direction < 0f ? 4 : 5);
+                }
+                else
+                {
+                    animator.SetBool("up", true);
+                    offsetIndex = (direction < 0f ? 6 : 7);
+                }
+            }
+            else
+            {
+                animator.SetBool("straight", true);
+                offsetIndex = (direction < 0f ? 2 : 3);
+            }
+            if((input & Keys.down) != 0)
+                offsetIndex = (direction < 0f ? 0 : 1);
+
+            if (!bFire)
+            {
+                int angle = 0;
+                if((offsetIndex&1)==0)
+                {
+                    angle = 180;
+                }
+
+                if (offsetIndex == 4)
+                    angle -= 45;
+                else if(offsetIndex==5)
+                    angle = 45;
+                else if(offsetIndex==6 || offsetIndex == 7)
+                    angle = 90;
+
+                ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET, transform.position + fireOffsets[offsetIndex], angle);
+                bFire = true;
+                StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bFire = false; }, fireDelay));
+            }
+        }
+        else
+            animator.SetBool("shoot", false);
+
+        switch (action)
+        {
+            case eAction.IDLE:
+                {
+                    animator.SetBool("run", false);
+                }
+                break;
+            case eAction.MOVE:
+                {
+                    animator.SetBool("run", true);
+                    transform.position += direction * speed * Time.deltaTime * Vector3.right;
+                }
+                break;
+            case eAction.JUMP:
+                break;
+            case eAction.HIT:
+                break;
+            case eAction.DEATH:
+                break;
+            default:
+                break;
+        }
+
+
+
+
+
+
+        /*
         if (horizontalInput != 0f)
         {
             // 이동 관련
@@ -156,31 +263,12 @@ public class PlayerController : Prefab
             rigidbody.gravityScale = gravity;
             rigidbody.AddForce(jumpForce, ForceMode2D.Impulse);
         }
+        */
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log(collision.collider.bounds.size);
-    }
-
-
-    void SetNextAction(ulong _input)
-    {
-        if((_input&Keys.shoot)!=0)
-        {
-            if((_input&Keys.left)!=0 || (_input & Keys.right) != 0)
-            {
-                nextAction = eAction.MOVE_AND_ATTACK;
-            }
-            if ((_input & Keys.left) != 0)
-            {
-
-            }
-        }
-        else
-        {
-
-        }
     }
 
     // ** Getter && Setter
@@ -201,8 +289,9 @@ public class PlayerController : Prefab
     CapsuleCollider2D collider;
 
     // 공격 관련
-    Vector3 rightOffset = new Vector3(0.45f, 0.55f, 0f);
-    Vector3 leftOffset = new Vector3(-0.45f, 0.55f, 0f);
+    Vector3[] fireOffsets = 
+       { new Vector3(-0.8f, 0.1f, 0f), new Vector3(0.8f, 0.1f, 0f), new Vector3(-0.8f, 0.55f, 0f), new Vector3(0.8f, 0.55f, 0f),
+    new Vector3(-0.8f, 1f, 0f),new Vector3(0.8f, 1f, 0f),new Vector3(-0.2f, 1.1f, 0f),new Vector3(0.2f, 1.1f, 0f)};
     bool bFire;
     float fireDelay = 0.2f;
 
@@ -211,10 +300,9 @@ public class PlayerController : Prefab
 
 
     // 상태 관련
-    eAction action;
-    eAction nextAction;
+    [SerializeField] eAction action;
     eActionState actionState;
 
-    enum eAction { NONE, INTRO, IDLE, MOVE, JUMP, ATTACK, MOVE_AND_ATTACK,HIT, DEATH }
+    enum eAction { NONE, INTRO, IDLE, MOVE, JUMP ,HIT, DEATH }
     enum eActionState { READY, SELECT, START, ACT, FINISH }
 }

@@ -16,25 +16,26 @@ public abstract class Prefab : MonoBehaviour
         get => direction;
         set
         {
-            bool change = false;
-            if (direction >= 0f && value < 0f)
+            direction = (value < 0f ? -1f : 1f);
+            Vector3 scale = transform.localScale;
+            if(direction*scale.x<-1f)
             {
-                direction = -1f;
-                change = true;
-            }
-            else if (direction <= 0f && value > 0f)
-            {
-                direction = 1f;
-                change = true;
-            }
-            if (change)
-            {
-                Vector3 scale = transform.localScale;
                 scale.x *= -1f;
                 transform.localScale = scale;
             }
         }
     }
+
+    public int Angle
+    {
+        get => angle;
+        set
+        {
+            angle = value;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        }
+    }
+
 
     public Vector2 BoundaryX
     {
@@ -45,6 +46,8 @@ public abstract class Prefab : MonoBehaviour
     // 방향 (-1,1)만을 값으로 가짐
     protected float direction;
     protected Vector2 boundaryX;
+
+    protected int angle;
 
     // object 구분을 위한 key
     protected eObjectKey objectKey;
