@@ -82,6 +82,7 @@ public class Goopy : Boss
                         {
                             --minCount;
                             --maxCount;
+                            collider.direction = CapsuleDirection2D.Vertical;
                             StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase2, jumpDelay));
                         }
                         else if (jumpCount >= targetCount)
@@ -276,6 +277,7 @@ public class Goopy : Boss
             Bullet bullet = target as Bullet;
             hp -= bullet.Damage;
             ObjectManager.Instance.RecallObject(collision.gameObject);
+            ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET_HIT,collision.transform.position);
         }
     }
 
@@ -290,9 +292,9 @@ public class Goopy : Boss
         // Target 설정
         targetPosition = FindObjectOfType<PlayerController>().transform;
 
-        collider.direction = CapsuleDirection2D.Vertical;
-        collider.offset = new Vector2(0f, 0.85f);
-        collider.size = new Vector2(1.38f, 1.48f);
+        collider.direction = CapsuleDirection2D.Horizontal;
+        collider.offset = new Vector2(0f, 0.88f);
+        collider.size = new Vector2(1.49f, 1.49f);
         collider.isTrigger = true;
 
         // Boundary 설정
@@ -333,9 +335,9 @@ public class Goopy : Boss
         actionState = eActionState.START;
         jumpCount = 0;
         animator.SetBool("ready", false);
-        collider.direction = CapsuleDirection2D.Horizontal;
-        collider.offset = new Vector2(0f, 1.79f);
-        collider.size = new Vector2(3f, 3f);
+        collider.direction = CapsuleDirection2D.Vertical;
+        collider.offset = new Vector2(0f, 1.6f);
+        collider.size = new Vector2(2.8f, 2.8f);
     }
 
     private void ToPhase3()

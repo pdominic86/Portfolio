@@ -4,15 +4,15 @@ using UnityEngine;
 
 public abstract class Effect : Prefab
 {
-    private void Awake()
+    protected void Initialize(float _time)
     {
-        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { ObjectManager.Instance.RecallObject(gameObject); }, time));
+        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { ObjectManager.Instance.RecallObject(gameObject); }, _time));
     }
+
+
     // ** Getter & Setter
     public override eGroupKey GroupKey => eGroupKey.EFFECT; 
     public override eObjectKey ObjectKey { get; }
 
-
-
-    float time=1f;
+    protected float endTime;
 }

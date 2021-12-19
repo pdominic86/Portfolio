@@ -12,7 +12,7 @@ public class NormalBullet : Bullet
         collider.isTrigger = true;
 
         direction = 1f;
-        speed = 7f;
+        speed = 12f;
         damage = 2;
     }
 
@@ -21,17 +21,17 @@ public class NormalBullet : Bullet
         SetBoundry();
     }
 
+    private void Update()
+    {
+        transform.position += speed * Time.deltaTime * forward;
+        if (transform.position.x < boundaryX.x || transform.position.x > boundaryX.y)
+            ObjectManager.Instance.RecallObject(gameObject);
+    }
+
     private void OnEnable()
     {
         SetBoundry();
     }
-
-
-    private void Update()
-    {
-        base.Update();
-    }
-
 
 
 

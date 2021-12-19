@@ -12,7 +12,11 @@ public enum eObjectKey
     GOOPY,
     TOMBSTONE,
     //effect
-    GOOPY_EXPLODE
+    GOOPY_EXPLODE,
+    JUMP_DUST_EFFECT,
+    DASH_DUST_EFFECT,
+    NORMAL_BULLET_HIT,
+    NORMAL_BULLET_SHOOT
 };
 
 public enum eGroupKey
@@ -24,8 +28,14 @@ public enum eGroupKey
     EFFECT
 }
 
-public delegate void DelayAction();
+public enum eSceneKey
+{
+    OZZE
+}
 
+
+
+public delegate void DelayAction();
 
 class CoroutineFunc
 {

@@ -40,196 +40,113 @@ public class PlayerController : Prefab
         // input check
         ulong input = Keys.InputCheck();
 
-        // 방향전환
-        if ((input & Keys.left) != 0)
-            direction = -1f;
-        else if((input & Keys.right) != 0)
-            direction = 1f;
-
-        Vector3 scale = transform.localScale;
-        if (direction * scale.x < 0f)
+        // 방향전환 관련
+        if (!bDash)
         {
-            scale.x *= -1f;
-            transform.localScale = scale;
-        }
-
-        // 이동상태 관련
-        if ((input & Keys.left) != 0 || (input & Keys.right) != 0)
-        {
-            if ((input & Keys.locked) != 0 || (input & Keys.down) != 0)
-                action = eAction.IDLE;
-            else
-                action = eAction.MOVE;
-        }
-        else
-            action = eAction.IDLE;
-
-        if ((input & Keys.down) != 0)
-            animator.SetBool("duck", true);
-        else
-            animator.SetBool("duck", false);
-
-
-        animator.SetBool("straight", false);
-        animator.SetBool("diagonal", false);
-        animator.SetBool("up", false);
-        if ((input & Keys.shoot) != 0)
-        {
-            int offsetIndex = 0;
-            animator.SetBool("shoot", true);
-            if ((input & Keys.up) != 0)
+            if ((input & Keys.left) != 0)
             {
-                if ((input & Keys.left) != 0 || (input & Keys.right) != 0)
-                {
-                    animator.SetBool("diagonal", true);
-                    offsetIndex = (direction < 0f ? 4 : 5);
-                }
-                else
-                {
-                    animator.SetBool("up", true);
-                    offsetIndex = (direction < 0f ? 6 : 7);
-                }
+                direction = -1f;
+                bMove = true;
+            }
+            else if ((input & Keys.right) != 0)
+            {
+                direction = 1f;
+                bMove = true;
             }
             else
-            {
-                animator.SetBool("straight", true);
-                offsetIndex = (direction < 0f ? 2 : 3);
-            }
-            if((input & Keys.down) != 0)
-                offsetIndex = (direction < 0f ? 0 : 1);
+                bMove = false;
 
-            if (!bFire)
-            {
-                int angle = 0;
-                if((offsetIndex&1)==0)
-                {
-                    angle = 180;
-                }
-
-                if (offsetIndex == 4)
-                    angle -= 45;
-                else if(offsetIndex==5)
-                    angle = 45;
-                else if(offsetIndex==6 || offsetIndex == 7)
-                    angle = 90;
-
-                ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET, transform.position + fireOffsets[offsetIndex], angle);
-                bFire = true;
-                StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bFire = false; }, fireDelay));
-            }
-        }
-        else
-            animator.SetBool("shoot", false);
-
-        switch (action)
-        {
-            case eAction.IDLE:
-                {
-                    animator.SetBool("run", false);
-                }
-                break;
-            case eAction.MOVE:
-                {
-                    animator.SetBool("run", true);
-                    transform.position += direction * speed * Time.deltaTime * Vector3.right;
-                }
-                break;
-            case eAction.JUMP:
-                break;
-            case eAction.HIT:
-                break;
-            case eAction.DEATH:
-                break;
-            default:
-                break;
-        }
-
-
-
-
-
-
-        /*
-        if (horizontalInput != 0f)
-        {
-            // 이동 관련
-            transform.position += speed * horizontalInput * Time.deltaTime * Vector3.right;
-
-            // 방향 관련
-            direction = (horizontalInput < 0f ? -1f : 1f);
             Vector3 scale = transform.localScale;
-            if (direction < 0f && scale.x > 0f || direction > 0f && scale.x < 0f)
+            if (direction * scale.x < 0f)
             {
                 scale.x *= -1f;
                 transform.localScale = scale;
             }
+        }
 
-            if(action==eAction.IDLE)
+        // 애니메이션을 재생할 변수들을 키입력에 따라 변경
+        bLock = ((input & Keys.locked) != 0 ? true : false);
+        bDuck = (bJump || bDash ? false : (input & Keys.down) != 0);
+        bShoot = ((input & Keys.shoot) != 0 ? true : false);
+        if(bLock || bDuck || bDash)
+            bMove =false;
+
+        if (!bDuck && !bLock)
+        {
+            if (!bCanDash && (input & Keys.dash) != 0)
             {
-                action = eAction.MOVE;
-                animator.SetBool("run", true);
+                bDash = true;
+                bCanDash = true;
+                rigidbody.gravityScale = 0f;
+                rigidbody.velocity = Vector2.zero;
+                rigidbody.AddForce(dashForce * direction, ForceMode2D.Impulse);
+                StartCoroutine(CoroutineFunc.DelayCoroutine(DashEnd, 0.45f));
+                StartCoroutine(CoroutineFunc.DelayCoroutine(() =>{ bCanDash = false; }, 0.8f));
+                ObjectManager.Instance.NewObject(eObjectKey.DASH_DUST_EFFECT, transform.position+ dashOffset);
+            }
+
+            if (!bJump && !bDash && (input & Keys.jump) != 0)
+            {
+                bJump = true;
+                rigidbody.gravityScale = gravity;
+                rigidbody.AddForce(jumpForce, ForceMode2D.Impulse);
             }
         }
-        else
+
+        if (bShoot)
         {
+            int offsetIndex = 0;
+            float poseFactor = 0f;
 
-        }
-
-
-
-        if (Input.GetKey(KeyCode.C))
-        {
-
-        }
-
-        // state
-        switch (action)
-        {
-            case eAction.IDLE:
+            if ((input & Keys.up) != 0)
+            {
+                if ((input & Keys.left) != 0 || (input & Keys.right) != 0)
                 {
-                    if(horizontalInput!=0f)
-                    {
-                        action = eAction.MOVE;
-                        actionState = eActionState.START;
-
-
-                    }
+                    poseFactor = 0.5f;
+                    offsetIndex = (direction < 0f ? 4 : 5);
                 }
-                break;
-            case eAction.MOVE:
+                else
                 {
-                    if (actionState == eActionState.START)
-                    {
-                        animator.SetBool("run", true);
-                        actionState = eActionState.ACT;
-                    }
-                    else if (actionState == eActionState.ACT)
-                    {
-                        if(horizontalInput==0f)
-                        {
-                            action = eAction.IDLE;
-                            animator.SetBool("run", false);
-                        }
-                        else
-                        {
-                            transform.position += speed * horizontalInput * Time.deltaTime * Vector3.right;
-                        }
-                    }
+                    poseFactor = 1f;
+                    offsetIndex = (direction < 0f ? 6 : 7);
                 }
-                break;
-            case eAction.JUMP:
-                break;
-            case eAction.ATTACK:
-                break;
-            case eAction.DEATH:
-                break;
-            default:
-                break;
+            }
+            else
+                offsetIndex = (direction < 0f ? 2 : 3);
+
+            if (bJump || bDash)
+                offsetIndex = (direction < 0f ? 2 : 3);
+            else if(bDuck)
+                offsetIndex = (direction < 0f ? 0 : 1);
+            else
+                animator.SetFloat("shoot_pose", poseFactor);
+
+            if (!bFire)
+            {
+
+                int angle = 0;
+                if ((offsetIndex & 1) == 0)
+                    angle = 180;
+
+                if (offsetIndex == 4)
+                    angle -= 60;
+                else if (offsetIndex == 5)
+                    angle = 60;
+                else if (offsetIndex == 6 || offsetIndex == 7)
+                    angle = 90;
+
+                Vector3 firePosition = transform.position + fireOffsets[offsetIndex];
+                ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET_SHOOT, firePosition);
+                ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET, firePosition, angle);
+                bFire = true;
+                StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bFire = false; }, fireDelay));
+            }
         }
 
+        // 이동 관련
+        if (bMove)
+            transform.position += direction * speed * Time.deltaTime * Vector3.right;
 
-
-        // boundary 관련
         Vector3 position = transform.position;
         if (position.x < boundaryX.x || transform.position.x > boundaryX.y)
         {
@@ -237,39 +154,53 @@ public class PlayerController : Prefab
             transform.position = position;
         }
 
-        // jump 관련
+        // jump 종료 관련
         if (transform.position.y < 0f)
         {
-            bJump = false;
+            if(bJump)
+            {
+                ObjectManager.Instance.NewObject(eObjectKey.JUMP_DUST_EFFECT, transform.position);
+                bJump = false;
+            }
+
             rigidbody.gravityScale = 0f;
             rigidbody.velocity = Vector2.zero;
             position.y = 0f;
             transform.position = position;
+            animator.SetBool("jump", false);
         }
 
-        // 공격
-        if (!bFire && Input.GetKey(KeyCode.C))
-        {
-            Vector3 firePosition = transform.position;
-            firePosition += (direction < 0f ? leftOffset : rightOffset);
-            ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET, firePosition, direction);
-            bFire = true;
-            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bFire = false; }, fireDelay));
-        }
-        // 점프
-        if (!bJump && Input.GetKey(KeyCode.X))
-        {
-            bJump = true;
-            rigidbody.gravityScale = gravity;
-            rigidbody.AddForce(jumpForce, ForceMode2D.Impulse);
-        }
-        */
+        // animation
+        animator.SetBool("dash", bDash);
+        animator.SetBool("shoot", bFire);
+        animator.SetBool("duck", bDuck);
+        if(bJump)
+            animator.SetBool("run", false);
+        else
+            animator.SetBool("run", bMove);
+        if (bDash)
+            animator.SetBool("jump", false);
+        else
+            animator.SetBool("jump", bJump);
+
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log(collision.collider.bounds.size);
     }
+
+
+
+    void DashEnd()
+    {
+        bDash = false;
+        rigidbody.velocity = Vector2.zero;
+        rigidbody.gravityScale = gravity;
+    }
+
+
 
     // ** Getter && Setter
     // key
@@ -278,6 +209,7 @@ public class PlayerController : Prefab
 
     // 이동 관련
     float speed = 3f;
+    bool bMove;
 
     // 점프 관련
     Rigidbody2D rigidbody;
@@ -285,13 +217,24 @@ public class PlayerController : Prefab
     float gravity = 2.5f;
     bool bJump;
 
+    // 대쉬 관련
+    bool bDash;
+    bool bCanDash;
+    Vector2 dashForce = new Vector2(10f, 0f);
+    Vector3 dashOffset = new Vector3(0f, 0.3f);
+
     // 충돌 관련
     CapsuleCollider2D collider;
 
+    // 입력 상태
+    bool bLock;
+    bool bShoot;
+    bool bDuck;
+
     // 공격 관련
     Vector3[] fireOffsets = 
-       { new Vector3(-0.8f, 0.1f, 0f), new Vector3(0.8f, 0.1f, 0f), new Vector3(-0.8f, 0.55f, 0f), new Vector3(0.8f, 0.55f, 0f),
-    new Vector3(-0.8f, 1f, 0f),new Vector3(0.8f, 1f, 0f),new Vector3(-0.2f, 1.1f, 0f),new Vector3(0.2f, 1.1f, 0f)};
+       { new Vector3(-0.8f, 0.3f, 0f), new Vector3(0.8f, 0.3f, 0f), new Vector3(-0.8f, 0.7f, 0f), new Vector3(0.8f, 0.7f, 0f),
+    new Vector3(-0.8f, 1.2f, 0f),new Vector3(0.8f, 1.2f, 0f),new Vector3(-0.3f, 1.6f, 0f),new Vector3(0.3f, 1.6f, 0f)};
     bool bFire;
     float fireDelay = 0.2f;
 

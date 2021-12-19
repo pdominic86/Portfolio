@@ -22,7 +22,16 @@ public class ObjectManager : MonoBehaviour
         {
             eObjectKey key = prefab.GetComponent<Prefab>().ObjectKey;
             if(!prefabList.ContainsKey(key))
+            {
+                if(key==eObjectKey.PLAYER)
+                {
+                    var playerObj = Instantiate<GameObject>(prefab);
+                    playerObj.SetActive(false);
+                    player = playerObj;
+                }
+                else
                 prefabList.Add(prefab.GetComponent<Prefab>().ObjectKey, prefab);
+            }
         }
     }
 
@@ -37,7 +46,10 @@ public class ObjectManager : MonoBehaviour
         }
         if (disableList[_key].Count == 0)
         {
-            int size = (prefabList[_key].GetComponent<Prefab>().GroupKey == eGroupKey.BOSS ? 1 : createSize);
+            int size = createSize;
+            eGroupKey groupKey = prefabList[_key].GetComponent<Prefab>().GroupKey;
+            if (groupKey == eGroupKey.BOSS || groupKey == eGroupKey.EFFECT)
+                size = 1;
 
             for (int i = 0; i < size; ++i)
             {
@@ -45,7 +57,6 @@ public class ObjectManager : MonoBehaviour
                 createObj.SetActive(false);
                 disableList[_key].Enqueue(createObj);
             }
-
         }
         if(!enableList.ContainsKey(_key))
             enableList.Add(_key, new LinkedList<GameObject>());
@@ -97,6 +108,8 @@ public class ObjectManager : MonoBehaviour
 
 
     // Getter & Setter
+    public GameObject Player => player;
+
     public static ObjectManager Instance
     {
         get
@@ -123,6 +136,9 @@ public class ObjectManager : MonoBehaviour
     Dictionary<eObjectKey, LinkedList<GameObject>> enableList = new Dictionary<eObjectKey, LinkedList<GameObject>>();
     Dictionary<eObjectKey, Queue<GameObject>> disableList = new Dictionary<eObjectKey, Queue<GameObject>>();
     Dictionary<eObjectKey, GameObject> prefabList = new Dictionary<eObjectKey, GameObject>();
+
+    // 플레이어
+    GameObject player;
     int createSize = 4;
 
 

@@ -26,13 +26,16 @@ public abstract class Prefab : MonoBehaviour
         }
     }
 
-    public int Angle
+    public float Angle
     {
         get => angle;
         set
         {
             angle = value;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            float radian = angle * Mathf.Deg2Rad;
+            forward = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian));
+            Debug.Log(Mathf.Sin(radian));
         }
     }
 
@@ -47,7 +50,8 @@ public abstract class Prefab : MonoBehaviour
     protected float direction;
     protected Vector2 boundaryX;
 
-    protected int angle;
+    [SerializeField] protected float angle;
+    [SerializeField] protected Vector3 forward;
 
     // object 구분을 위한 key
     protected eObjectKey objectKey;

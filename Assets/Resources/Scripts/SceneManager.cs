@@ -19,19 +19,30 @@ public class SceneManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
 
+
+        var prefabs = Resources.LoadAll<GameObject>("Scene");
+        foreach(var prefab in prefabs)
+        {
+            eSceneKey sceneKey = prefab.GetComponent<Scene>().SceneKey;
+            if (!sceneList.ContainsKey(sceneKey))
+            {
+                GameObject obj = Instantiate(prefab);
+                obj.SetActive(false);
+                sceneList.Add(sceneKey, obj);
+            }
+        }
     }
+
     private void Start()
     {
-        ObjectManager.Instance.NewObject(eObjectKey.GOOPY);
+        GameObject scene = sceneList[eSceneKey.OZZE];
+        scene.SetActive(true);
+        currentScene = scene.GetComponent<Scene>();
     }
 
 
 
     // ** Getter & Setter
-    public Vector2 BoundaryX => boundaryX;
-
-
-
     public static SceneManager Instance
     {
         get
@@ -53,8 +64,8 @@ public class SceneManager : MonoBehaviour
     private SceneManager() { }
 
     // ** Field
-    private Vector2 boundaryX = new Vector2(-6f, 6f);
-
+    private Dictionary<eSceneKey,GameObject> sceneList;
+    private Scene currentScene;
 
     private static SceneManager instance;
 }

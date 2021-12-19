@@ -6,18 +6,15 @@ public class GoopyExplodeEffect : Effect
 {
     private void Start()
     {
-        Initialize();
+        endTime = 0.5f;
+        Initialize(endTime);
     }
 
     private void OnEnable()
     {
-        Initialize();
+        Initialize(endTime);
     }
 
-    void Initialize()
-    {
-        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { ObjectManager.Instance.RecallObject(gameObject); }, 0.3f));
-    }
     // ** Getter & Setter
     public override eObjectKey ObjectKey => eObjectKey.GOOPY_EXPLODE;
 }
