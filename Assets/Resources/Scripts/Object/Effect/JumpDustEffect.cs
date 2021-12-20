@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class JumpDustEffect : Effect
 {
-    private void Start()
+    private void Awake()
     {
         endTime = 0.7f;
-        Initialize(endTime);
     }
 
     private void OnEnable()

@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class NormalBulletShootEffect : Effect
 {
-    private void Start()
+    private void Awake()
     {
         endTime = 0.3f;
-        Initialize(endTime);
     }
 
     private void OnEnable()

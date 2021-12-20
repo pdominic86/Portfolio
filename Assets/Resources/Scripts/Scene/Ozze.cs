@@ -11,12 +11,16 @@ public class Ozze : Scene
 
     private void OnDisable()
     {
-        player.SetActive(false);
-        ObjectManager.Instance.RecallObject(boss);
+        if(player)
+            player.SetActive(false);
+        if(boss)
+            ObjectManager.Instance.RecallObject(boss);
     }
 
     void Initialize()
     {
+        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
+
         // 플레이어 설정
         player = ObjectManager.Instance.Player;
         player.SetActive(true);
@@ -24,6 +28,11 @@ public class Ozze : Scene
 
         // 보스 설정
         boss=ObjectManager.Instance.NewObject(eObjectKey.GOOPY, bossSpawnPos);
+
+        // 카메라 설정
+        camera.SetPositionOffset(positionOffset);
+        camera.SetTarget(player.transform);
+        camera.SetSceneKey(eSceneKey.OZZE);
     }
 
 
@@ -35,4 +44,6 @@ public class Ozze : Scene
     GameObject boss;
     Vector3 playerSpawnPos= new Vector3(-3.5f, -0.3f);
     Vector3 bossSpawnPos= new Vector3(3.5f, -0.3f);
+    Vector3 positionOffset = new Vector3(0f, 2.2f, -10f);
+
 }

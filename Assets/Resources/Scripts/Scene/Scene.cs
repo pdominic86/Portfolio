@@ -15,4 +15,6 @@ public abstract class Scene : MonoBehaviour
     // ** Field
     protected eSceneKey sceneKey;
     protected Rect boundary;
+
+    protected CameraController camera;
 }

@@ -16,7 +16,14 @@ public enum eObjectKey
     JUMP_DUST_EFFECT,
     DASH_DUST_EFFECT,
     NORMAL_BULLET_HIT,
-    NORMAL_BULLET_SHOOT
+    NORMAL_BULLET_SHOOT,
+
+    // scene transition
+    SCENE_CHANGE_OPEN,
+    SCENE_CHANGE_CLOSE,
+
+    // trigger
+    TO_TUTORIAL
 };
 
 public enum eGroupKey
@@ -25,11 +32,15 @@ public enum eGroupKey
     BULLET,
     BOSS,
     ENEMY,
-    EFFECT
+    EFFECT,
+    TRIGGER
 }
 
 public enum eSceneKey
 {
+    TITLE,
+    HOUSE,
+    WORLD,
     OZZE
 }
 

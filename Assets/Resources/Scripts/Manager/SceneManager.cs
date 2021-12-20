@@ -19,32 +19,52 @@ public class SceneManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
 
-
         var prefabs = Resources.LoadAll<GameObject>("Scene");
         foreach (var prefab in prefabs)
         {
             eSceneKey sceneKey = prefab.GetComponent<Scene>().SceneKey;
-            if (!sceneList.ContainsKey(sceneKey))
+            if (!prefabList.ContainsKey(sceneKey))
             {
-                GameObject obj = Instantiate(prefab);
-                obj.SetActive(false);
-                sceneList.Add(sceneKey, obj);
+                prefabList.Add(sceneKey, prefab);
             }
         }
-
-        camera = FindObjectOfType<CameraController>();
     }
 
     private void Start()
     {
-        GameObject scene = sceneList[eSceneKey.OZZE];
-        currentScene = scene.GetComponent<Scene>();
-        scene.SetActive(true);
-        camera.SetTarget(ObjectManager.Instance.Player.transform);
+        GameObject title = Instantiate<GameObject>(prefabList[eSceneKey.TITLE]);
+        sceneList.Add(eSceneKey.TITLE, title);
+        currentScene = title.GetComponent<Scene>();
+        
+    }
+
+
+    // ** self
+
+    private void ToNextScene()
+    {
+        if (!sceneList.ContainsKey(nextSceneKey))
+        {
+            GameObject scene = Instantiate<GameObject>(prefabList[nextSceneKey]);
+            sceneList.Add(nextSceneKey, scene);
+        }
+        currentScene.gameObject.SetActive(false);
+        currentScene = sceneList[nextSceneKey].GetComponent<Scene>();
+        currentScene.gameObject.SetActive(true);
     }
 
 
 
+
+    public void SetScene(eSceneKey _key)
+    {
+        if(prefabList.ContainsKey(_key))
+        {
+            nextSceneKey = _key;
+            ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_CLOSE);
+            StartCoroutine(CoroutineFunc.DelayCoroutine(ToNextScene, transitionDelay));
+        }
+    }
     // ** Getter & Setter
     public Scene CurrentScene => currentScene;
 
@@ -69,9 +89,11 @@ public class SceneManager : MonoBehaviour
     private SceneManager() { }
 
     // ** Field
+    private Dictionary<eSceneKey,GameObject> prefabList=new Dictionary<eSceneKey, GameObject>();
     private Dictionary<eSceneKey,GameObject> sceneList=new Dictionary<eSceneKey, GameObject>();
     private Scene currentScene;
-    private CameraController camera;
+    private eSceneKey nextSceneKey;
+    private float transitionDelay = 1f;
 
     private static SceneManager instance;
 }
