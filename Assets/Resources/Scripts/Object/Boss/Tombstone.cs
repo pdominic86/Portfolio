@@ -6,28 +6,12 @@ public class Tombstone : Boss
 {
     private void Awake()
     {
-        // Rigidbody 설정
         rigidbody = gameObject.AddComponent<Rigidbody2D>();
-        rigidbody.gravityScale = gravityScale;
-        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        // Collider 설정
-        collider = gameObject.AddComponent<CapsuleCollider2D>();
-        collider.direction = CapsuleDirection2D.Horizontal;
-        collider.offset = new Vector2(0.05f, 3.1f);
-        collider.size = new Vector2(1.95f, 1.43f);
-        collider.isTrigger = true;
-
-        // Animator 설정
+        collider = gameObject.GetComponent<CapsuleCollider2D>();
         animator = GetComponent<Animator>();
 
         //체력
-        maxHp = 200;
-    }
-
-    private void Start()
-    {
-        Initialize();   
+        maxHp = 300;
     }
 
     private void OnEnable()
@@ -49,11 +33,11 @@ public class Tombstone : Boss
             if (actionState == eActionState.READY)
             {
                 Vector3 position = transform.position;
-                if (rigidbody.gravityScale > 1f && position.y < 0f)
+                if (rigidbody.gravityScale > 1f && position.y < boundary.yMin)
                 {
                     rigidbody.gravityScale = 0f;
                     rigidbody.velocity = Vector3.zero;
-                    position.y = 0f;
+                    position.y = boundary.yMin;
                     transform.position = position;
 
                     actionState = eActionState.START;
@@ -75,6 +59,8 @@ public class Tombstone : Boss
                     direction = -1f;
                 else
                     direction = 1f;
+
+                targetCount = Random.Range(minCount, maxCount);
             }
         }
         else if (action == eAction.MOVE)
@@ -92,35 +78,57 @@ public class Tombstone : Boss
             {
                 transform.position += direction * speed * Time.deltaTime * Vector3.right;
                 Vector3 position = transform.position;
-                if(position.x<boundaryX.x)
+                if(position.x<boundary.xMin || position.x > boundary.xMax)
                 {
+                    ++moveCount;
                     actionState = eActionState.FINISH;
-                    position.x = boundaryX.x;
+                    if (position.x < boundary.xMin)
+                    {
+                        position.x = boundary.xMin;
+                        animator.SetBool("left", false);
+                    }
+                    else
+                    {
+                        position.x = boundary.xMax;
+                        animator.SetBool("right", false);
+                    }
                     transform.position = position;
-                    animator.SetBool("left", false);
                     direction *= -1f;
                     StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.SELECT; }, turnDelay));
                 }
-                else if(position.x > boundaryX.y)
+                if (moveCount >=targetCount)
                 {
-                    actionState = eActionState.FINISH;
-                    position.x = boundaryX.y;
-                    transform.position = position;
-                    animator.SetBool("right", false);
-                    direction *= -1f;
-                    StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.SELECT; }, turnDelay));
+                    Vector2 targetBound = new Vector2(position.x - collider.size.x * 0.5f, position.x + collider.size.x * 0.5f);
+                    if(targetPosition.position.x>targetBound.x && targetPosition.position.x < targetBound.y)
+                    {
+                        action = eAction.ATTACK;
+                        actionState = eActionState.START;
+                        targetCount = Random.Range(minCount, maxCount);
+                        moveCount = 0;
+                    }
                 }
-
 
             }
+        }
+        else if (action == eAction.ATTACK)
+        {
+            if(actionState==eActionState.START)
+            {
+                animator.SetBool("attack", true);
+                actionState = eActionState.ACT;
+                StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay));
+            }
+            else if (actionState == eActionState.FINISH)
+            {
+                animator.SetBool("attack", false);
+                action = eAction.MOVE;
+                actionState = eActionState.SELECT;
+            }
+
         }
     }
 
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.Log("call");
-    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Prefab target = collision.gameObject.GetComponent<Prefab>();
@@ -146,15 +154,18 @@ public class Tombstone : Boss
     // ** self_definede
     private void Initialize()
     {
+        // Rigidbody 설정
+        rigidbody.gravityScale = gravityScale;
+        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         // 상태
         action = eAction.INTRO;
         actionState = eActionState.READY;
 
         // Boundary 설정
-        boundaryX = SceneManager.Instance.BoundaryX;
-        boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
-        boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
-        Debug.Log(boundaryX);
+        boundary = SceneManager.Instance.CurrentScene.Boundary;
+        boundary.xMin += collider.offset.x + collider.size.x * 0.5f;
+        boundary.xMax += collider.offset.x - collider.size.x * 0.5f;
 
         // 방향
         direction = -1f;
@@ -163,7 +174,10 @@ public class Tombstone : Boss
         hp = maxHp;
 
         // target
-        targetPosition = FindObjectOfType<PlayerController>().transform;
+        targetPosition = ObjectManager.Instance.Player.transform;
+
+        targetCount = 0;
+        moveCount = 0;
     }
 
     // ** Getter & Setter
@@ -178,6 +192,12 @@ public class Tombstone : Boss
 
     float introDelay = 2f;
     float turnDelay = 0.25f;
+    float attackDelay = 1f;
+
+    int minCount = 5;
+    int maxCount = 9;
+    int targetCount;
+    int moveCount;
 
     eAction action;
     eActionState actionState;

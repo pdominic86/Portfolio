@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4659841834763522718}
   - component: {fileID: 3380740724812696956}
   - component: {fileID: 7219533200671608907}
+  - component: {fileID: -1731849940651028441}
   m_Layer: 0
   m_Name: Tombstone
   m_TagString: Untagged
@@ -115,3 +116,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d287e671e77c69c4f898609e2a9a5f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  angle: 0
+  forward: {x: 0, y: 0, z: 0}
+--- !u!70 &-1731849940651028441
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6298199602687741881}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 3.12}
+  m_Size: {x: 2.04, y: 1.45}
+  m_Direction: 1

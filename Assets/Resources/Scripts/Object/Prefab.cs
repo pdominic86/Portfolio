@@ -35,20 +35,14 @@ public abstract class Prefab : MonoBehaviour
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
             float radian = angle * Mathf.Deg2Rad;
             forward = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian));
-            Debug.Log(Mathf.Sin(radian));
         }
     }
 
 
-    public Vector2 BoundaryX
-    {
-        get => boundaryX;
-        set => boundaryX = value;
-    }
 
     // 방향 (-1,1)만을 값으로 가짐
     protected float direction;
-    protected Vector2 boundaryX;
+    protected Rect boundary;
 
     [SerializeField] protected float angle;
     [SerializeField] protected Vector3 forward;

@@ -6,37 +6,25 @@ public class PlayerController : Prefab
 {
     private void Awake()
     {
-        // Rigidbody 설정
         rigidbody = gameObject.AddComponent<Rigidbody2D>();
-        rigidbody.gravityScale = 0f;
-        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        // Collider 설정
-        collider = gameObject.AddComponent<CapsuleCollider2D>();
-        collider.offset = new Vector2(0f, 0.64f);
-        collider.size = new Vector2(0.43f, 0.95f);
-        collider.isTrigger = true;
-
+        collider = gameObject.GetComponent<CapsuleCollider2D>();
         animator = GetComponent<Animator>();
-
-        // 기본 방향 설정
-        direction = 1f;
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        // Boundary 설정
-        boundaryX = SceneManager.Instance.BoundaryX;
-        boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
-        boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
-
-        action = eAction.IDLE;
-        actionState = eActionState.START;
+        Initialize();
     }
 
 
     void Update()
     {
+        if (bIntro)
+        {
+            animator.SetBool("intro", true);
+            return;
+        }
+
         // input check
         ulong input = Keys.InputCheck();
 
@@ -148,14 +136,14 @@ public class PlayerController : Prefab
             transform.position += direction * speed * Time.deltaTime * Vector3.right;
 
         Vector3 position = transform.position;
-        if (position.x < boundaryX.x || transform.position.x > boundaryX.y)
+        if (position.x < boundary.xMin || transform.position.x > boundary.xMax)
         {
-            position.x = (position.x < 0f ? boundaryX.x : boundaryX.y);
+            position.x = (position.x < boundary.xMin?boundary.xMin: boundary.xMax);
             transform.position = position;
         }
 
         // jump 종료 관련
-        if (transform.position.y < 0f)
+        if (transform.position.y < boundary.yMin)
         {
             if(bJump)
             {
@@ -192,6 +180,26 @@ public class PlayerController : Prefab
     }
 
 
+    // ** self
+    void Initialize()
+    {
+        // Rigidbody 설정
+        rigidbody.gravityScale = 0f;
+        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // 기본 방향 설정
+        direction = 1f;
+
+        // Boundary 설정
+        boundary = SceneManager.Instance.CurrentScene.Boundary;
+        boundary.xMin += collider.offset.x + collider.size.x * 0.5f;
+        boundary.xMax += collider.offset.x - collider.size.x * 0.5f;
+
+        // intro
+        bIntro = true;
+        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bIntro = false; animator.SetBool("intro", false); }, introDelay));
+    }
+
 
     void DashEnd()
     {
@@ -206,6 +214,10 @@ public class PlayerController : Prefab
     // key
     public override eObjectKey ObjectKey { get => eObjectKey.PLAYER; }
     public override eGroupKey GroupKey { get => eGroupKey.PLAYER; }
+
+    // intro animation variable
+    bool bIntro;
+    float introDelay = 2f;
 
     // 이동 관련
     float speed = 3f;
@@ -240,12 +252,4 @@ public class PlayerController : Prefab
 
     // 애니메이션 관련
     Animator animator;
-
-
-    // 상태 관련
-    [SerializeField] eAction action;
-    eActionState actionState;
-
-    enum eAction { NONE, INTRO, IDLE, MOVE, JUMP ,HIT, DEATH }
-    enum eActionState { READY, SELECT, START, ACT, FINISH }
 }

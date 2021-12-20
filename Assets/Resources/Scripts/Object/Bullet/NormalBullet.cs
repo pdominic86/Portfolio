@@ -6,26 +6,9 @@ public class NormalBullet : Bullet
 {
     private void Awake()
     {
-        collider = gameObject.AddComponent<CapsuleCollider2D>();
-        collider.direction = CapsuleDirection2D.Horizontal;
-        collider.size = new Vector2(0.15f, 0.07f);
-        collider.isTrigger = true;
-
         direction = 1f;
         speed = 12f;
         damage = 2;
-    }
-
-    private void Start()
-    {
-        SetBoundry();
-    }
-
-    private void Update()
-    {
-        transform.position += speed * Time.deltaTime * forward;
-        if (transform.position.x < boundaryX.x || transform.position.x > boundaryX.y)
-            ObjectManager.Instance.RecallObject(gameObject);
     }
 
     private void OnEnable()
@@ -33,15 +16,25 @@ public class NormalBullet : Bullet
         SetBoundry();
     }
 
+    private void Update()
+    {
+        transform.position += speed * Time.deltaTime * forward;
+        if (!boundary.Contains(transform.position))
+            ObjectManager.Instance.RecallObject(gameObject);
+    }
+
+
 
 
     // ** self-defined
     // Boundary ¼³Á¤
     private void SetBoundry()
     {
-        boundaryX = SceneManager.Instance.BoundaryX;
-        boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
-        boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
+        boundary = SceneManager.Instance.CurrentScene.Boundary;
+        boundary.xMin += -1f;
+        boundary.xMax += 1f;
+        boundary.yMin += -1f;
+        boundary.yMax += 1f;
     }
 
     // ** Getter & Setter

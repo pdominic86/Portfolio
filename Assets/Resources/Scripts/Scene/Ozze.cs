@@ -4,13 +4,6 @@ using UnityEngine;
 
 public class Ozze : Scene
 {
-    private void Start()
-    {
-        topLeftBound = new Vector2(-5.5f, 8f);
-        bottomRightBound = new Vector2(5.5f, -0.5f);
-        Initialize();
-    }
-
     private void OnEnable()
     {
         Initialize();
@@ -36,9 +29,10 @@ public class Ozze : Scene
 
 
     public override eSceneKey SceneKey => eSceneKey.OZZE;
+    public override Rect Boundary => new Rect(-5.5f, -0.3f, 11f, 9f);
 
     GameObject player;
     GameObject boss;
-    Vector3 playerSpawnPos= new Vector3(-3.5f, -0.5f);
-    Vector3 bossSpawnPos= new Vector3(3.5f, -0.5f);
+    Vector3 playerSpawnPos= new Vector3(-3.5f, -0.3f);
+    Vector3 bossSpawnPos= new Vector3(3.5f, -0.3f);
 }

@@ -7,14 +7,12 @@ public abstract class Scene : MonoBehaviour
 
     // Getter & Setter
     public virtual eSceneKey SceneKey { get; }
-    public Vector2 TopLeftBound => topLeftBound;
-    public Vector2 BottomRightBound => bottomRightBound;
+    public virtual Rect Boundary { get; }
 
 
 
 
     // ** Field
     protected eSceneKey sceneKey;
-    protected Vector2 topLeftBound;
-    protected Vector2 bottomRightBound;
+    protected Rect boundary;
 }

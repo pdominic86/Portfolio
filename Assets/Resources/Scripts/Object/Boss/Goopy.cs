@@ -6,24 +6,15 @@ public class Goopy : Boss
 {
     private void Awake()
     {
-        // Rigidbody 설정
         rigidbody = gameObject.AddComponent<Rigidbody2D>();
-        rigidbody.gravityScale = 0f;
-        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        // Collider 설정
-        collider = gameObject.GetComponent<CapsuleCollider2D>();
-
-        // Animator 설정
         animator = GetComponent<Animator>();
+        var colliders = gameObject.GetComponents<CapsuleCollider2D>();
+        mainCollider = colliders[0];
+        subCollider = colliders[1];
+        subCollider.enabled = false;
 
         // 체력
-        maxHp = 200;
-    }
-
-    private void Start()
-    {
-        Initialize();
+        maxHp = 300;
     }
 
     private void OnEnable()
@@ -82,7 +73,6 @@ public class Goopy : Boss
                         {
                             --minCount;
                             --maxCount;
-                            collider.direction = CapsuleDirection2D.Vertical;
                             StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase2, jumpDelay));
                         }
                         else if (jumpCount >= targetCount)
@@ -106,9 +96,9 @@ public class Goopy : Boss
                     else if (actionState == eActionState.ACT)
                     {
                         Vector3 position = transform.position;
-                        if (position.x < boundaryX.x || position.x > boundaryX.y)
+                        if (position.x < boundary.xMin || position.x > boundary.xMax)
                         {
-                            position.x = (position.x < 0f ? boundaryX.x : boundaryX.y);
+                            position.x = (position.x < boundary.xMin ? boundary.xMin : boundary.xMax);
                             transform.position = position;
                             Vector3 force = rigidbody.velocity;
                             force.x *= -1f;
@@ -123,13 +113,13 @@ public class Goopy : Boss
                             bDownForce = true;
                             animator.SetTrigger("down_force");
                         }
-                        if (transform.position.y < 0f)
+                        if (transform.position.y < boundary.yMin)
                         {
                             bDownForce = false;
                             actionState = eActionState.FINISH;
                             rigidbody.gravityScale = 0f;
                             rigidbody.velocity = Vector2.zero;
-                            position.y = 0f;
+                            position.y = boundary.yMin;
                             transform.position = position;
                         }
                     }
@@ -146,11 +136,13 @@ public class Goopy : Boss
                         animator.SetTrigger("punch");
                         actionState = eActionState.ACT;
                         StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay_Phase1));
+                        subCollider.enabled = true;
                     }
                     else if(actionState==eActionState.FINISH)
                     {
                         action = eAction.JUMP; 
                         actionState = eActionState.SELECT;
+                        subCollider.enabled = false;
                     }
                 }
                 break;
@@ -203,9 +195,9 @@ public class Goopy : Boss
                     else if (actionState == eActionState.ACT)
                     {
                         Vector3 position = transform.position;
-                        if (position.x < boundaryX.x || position.x > boundaryX.y)
+                        if (position.x < boundary.xMin || position.x > boundary.xMax)
                         {
-                            position.x = (position.x < 0f ? boundaryX.x : boundaryX.y);
+                            position.x = (position.x < boundary.xMin ? boundary.xMin : boundary.xMax);
                             transform.position = position;
                             Vector3 force = rigidbody.velocity;
                             force.x *= -1f;
@@ -220,13 +212,13 @@ public class Goopy : Boss
                             bDownForce = true;
                             animator.SetTrigger("down_force");
                         }
-                        if (transform.position.y < 0f)
+                        if (transform.position.y < boundary.yMin)
                         {
                             bDownForce = false;
                             actionState = eActionState.FINISH;
                             rigidbody.gravityScale = 0f;
                             rigidbody.velocity = Vector2.zero;
-                            position.y = 0f;
+                            position.y = boundary.yMin;
                             transform.position = position;
                         }
                     }
@@ -243,11 +235,13 @@ public class Goopy : Boss
                         animator.SetTrigger("punch");
                         actionState = eActionState.ACT;
                         StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay_Phase2));
+                        subCollider.enabled = true;
                     }
                     else if (actionState == eActionState.FINISH)
                     {
                         action = eAction.JUMP;
                         actionState = eActionState.SELECT;
+                        subCollider.enabled = false;
                     }
                 }
                 else if (action == eAction.DEATH)
@@ -289,18 +283,23 @@ public class Goopy : Boss
     // 초기화 (OnEnable, Start에서 쓰기 위함)
     private void Initialize()
     {
-        // Target 설정
-        targetPosition = FindObjectOfType<PlayerController>().transform;
+        // Rigidbody 설정
+        rigidbody.gravityScale = 0f;
+        rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        collider.direction = CapsuleDirection2D.Horizontal;
-        collider.offset = new Vector2(0f, 0.88f);
-        collider.size = new Vector2(1.49f, 1.49f);
-        collider.isTrigger = true;
+        // Target 설정
+        targetPosition = ObjectManager.Instance.Player.transform;
+
+        mainCollider.direction = CapsuleDirection2D.Horizontal;
+        mainCollider.offset = new Vector2(0f, 0.88f);
+        mainCollider.size = new Vector2(1.49f, 1.49f);
+        subCollider.offset = new Vector2(0f, 0.88f);
+        subCollider.size = new Vector2(1.49f, 1.49f);
 
         // Boundary 설정
-        boundaryX = SceneManager.Instance.BoundaryX;
-        boundaryX.x += collider.offset.x + collider.size.x * 0.5f;
-        boundaryX.y += collider.offset.x - collider.size.x * 0.5f;
+        boundary = SceneManager.Instance.CurrentScene.Boundary;
+        boundary.xMin += mainCollider.offset.x + mainCollider.size.x * 0.5f;
+        boundary.xMax += mainCollider.offset.x - mainCollider.size.x * 0.5f;
 
         // 방향 설정
         direction = -1f;
@@ -311,8 +310,8 @@ public class Goopy : Boss
         actionState = eActionState.START;
 
         // jump count
-        int minCount = 4;
-        int maxCount = 8;
+        jumpCount = 0;
+        targetCount = 0;
 
         //체력
         hp = maxHp;
@@ -335,9 +334,13 @@ public class Goopy : Boss
         actionState = eActionState.START;
         jumpCount = 0;
         animator.SetBool("ready", false);
-        collider.direction = CapsuleDirection2D.Vertical;
-        collider.offset = new Vector2(0f, 1.6f);
-        collider.size = new Vector2(2.8f, 2.8f);
+        mainCollider.offset = new Vector2(0f, 1.6f);
+        mainCollider.size = new Vector2(2.8f, 2.8f);
+        subCollider.offset = new Vector2(0f, 1.6f);
+        subCollider.size = new Vector2(2.8f, 2.8f);
+        boundary = SceneManager.Instance.CurrentScene.Boundary;
+        boundary.xMin += mainCollider.offset.x + mainCollider.size.x * 0.5f;
+        boundary.xMax += mainCollider.offset.x - mainCollider.size.x * 0.5f;
     }
 
     private void ToPhase3()
@@ -384,9 +387,10 @@ public class Goopy : Boss
     float height = 10f;
 
     // 충돌 관련
-    CapsuleCollider2D collider;
-    const int phase2Start = 195;
-    const int phase3Start = 185;
+    CapsuleCollider2D mainCollider;
+    CapsuleCollider2D subCollider;
+    const int phase2Start = 280;
+    const int phase3Start = 260;
 
     // coroutine 사용 함수
     delegate void DelayAction();
