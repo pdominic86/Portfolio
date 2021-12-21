@@ -44,11 +44,11 @@ public abstract class Prefab : MonoBehaviour
     protected float direction;
     protected Rect boundary;
 
-    [SerializeField] protected float angle;
-    [SerializeField] protected Vector3 forward;
+    protected float angle;
+    protected Vector3 forward;
 
     // object 구분을 위한 key
-    protected eObjectKey objectKey;
-    protected eObjectKey groupKey;
+    [SerializeField] protected eObjectKey objectKey;
+    [SerializeField] protected eObjectKey groupKey;
 
 }

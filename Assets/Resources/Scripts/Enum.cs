@@ -17,7 +17,7 @@ public enum eObjectKey
     DASH_DUST_EFFECT,
     NORMAL_BULLET_HIT,
     NORMAL_BULLET_SHOOT,
-
+    GOOPY_PHASE2_DUST,
     // scene transition
     SCENE_CHANGE_OPEN,
     SCENE_CHANGE_CLOSE,

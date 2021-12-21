@@ -59,4 +59,5 @@ public class CameraController : MonoBehaviour
     Transform targetPos;
     float moveRange = 0.5f;
     float horizontalRatio;
+
 }

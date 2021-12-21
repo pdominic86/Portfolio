@@ -9,6 +9,7 @@ public class PlayerController : Prefab
         rigidbody = gameObject.AddComponent<Rigidbody2D>();
         collider = gameObject.GetComponent<CapsuleCollider2D>();
         animator = GetComponent<Animator>();
+        spriteRenderer=GetComponent<SpriteRenderer>();
     }
 
     private void OnEnable()
@@ -19,11 +20,8 @@ public class PlayerController : Prefab
 
     void Update()
     {
-        if (bIntro)
-        {
-            animator.SetBool("intro", true);
+        if (!bCanInput)
             return;
-        }
 
         // input check
         ulong input = Keys.InputCheck();
@@ -65,6 +63,7 @@ public class PlayerController : Prefab
             {
                 bDash = true;
                 bCanDash = true;
+                bHitable = false;
                 rigidbody.gravityScale = 0f;
                 rigidbody.velocity = Vector2.zero;
                 rigidbody.AddForce(dashForce * direction, ForceMode2D.Impulse);
@@ -153,7 +152,7 @@ public class PlayerController : Prefab
 
             rigidbody.gravityScale = 0f;
             rigidbody.velocity = Vector2.zero;
-            position.y = 0f;
+            position.y = boundary.yMin;
             transform.position = position;
             animator.SetBool("jump", false);
         }
@@ -196,16 +195,66 @@ public class PlayerController : Prefab
         boundary.xMax += collider.offset.x - collider.size.x * 0.5f;
 
         // intro
-        bIntro = true;
-        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bIntro = false; animator.SetBool("intro", false); }, introDelay));
+        bCanInput = false;
+        animator.SetBool("intro", true);
+        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bCanInput = true; animator.SetBool("intro", false); }, introDelay));
+
+        hp = maxHP;
+        bHitable = true;
     }
 
+    public void Hit()
+    {
+        if (!bHitable)
+            return;
+
+        --hp;
+        /*
+        if (hp < 0)
+        {
+            SceneManager.Instance.CurrentScene.gameObject.SetActive(false);
+            return;
+        }
+        */
+        animator.SetBool("shoot", false);
+        animator.SetBool("duck", false);
+        animator.SetBool("run", false);
+        animator.SetBool("jump", false);
+        animator.SetTrigger("hit");
+        bHitable = false;
+        bCanInput = false;
+        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bCanInput = true; }, 0.6f));
+        StartCoroutine(CoroutineFunc.DelayCoroutine(()=> { bHitable = true; }, hitDelay));
+        StartCoroutine(Blink());
+
+        rigidbody.velocity = Vector2.zero;
+        rigidbody.gravityScale = gravity;
+        rigidbody.AddForce(hitForce, ForceMode2D.Impulse);
+    }
 
     void DashEnd()
     {
         bDash = false;
+        bHitable = true;
         rigidbody.velocity = Vector2.zero;
         rigidbody.gravityScale = gravity;
+    }
+
+    IEnumerator Blink()
+    {
+        bFade = false;
+        while (!bHitable)
+        {
+            yield return new WaitForSeconds(blinkDelay);
+            if (!bFade)
+                spriteRenderer.color = full;
+            else
+                spriteRenderer.color = fade;
+            bFade ^= true;
+        }
+
+        bFade = false;
+        spriteRenderer.color = full;
     }
 
 
@@ -216,7 +265,7 @@ public class PlayerController : Prefab
     public override eGroupKey GroupKey { get => eGroupKey.PLAYER; }
 
     // intro animation variable
-    bool bIntro;
+    bool bCanInput;
     float introDelay = 2f;
 
     // 이동 관련
@@ -237,6 +286,13 @@ public class PlayerController : Prefab
 
     // 충돌 관련
     CapsuleCollider2D collider;
+    bool bHitable;
+    float hitDelay = 1.5f;
+    Vector2 hitForce= new Vector2(0f, 8f);
+
+    // 체력
+    int maxHP = 3;
+    int hp;
 
     // 입력 상태
     bool bLock;
@@ -252,4 +308,9 @@ public class PlayerController : Prefab
 
     // 애니메이션 관련
     Animator animator;
+    SpriteRenderer spriteRenderer;
+    float blinkDelay = 0.1f;
+    bool bFade;
+    Color full = Color.white;
+    Color fade = new Color(1f, 1f, 1f, 0.5f);
 }

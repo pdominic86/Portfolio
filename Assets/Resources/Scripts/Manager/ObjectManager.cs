@@ -101,7 +101,23 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
-
+    public void RecallAll()
+    {
+        List<eObjectKey> keyList = new List<eObjectKey>(enableList.Keys);
+        for (int i=0;i<keyList.Count;++i)
+        {
+            LinkedList<GameObject> objList = enableList[keyList[i]];
+            while (objList.Count >0)
+            {
+                GameObject obj = objList.Last.Value;
+                objList.RemoveLast();
+                eObjectKey key = obj.GetComponent<Prefab>().ObjectKey;
+                obj.SetActive(false);
+                disableList[key].Enqueue(obj);
+            }
+        }
+        
+    }
 
 
 

@@ -105,6 +105,7 @@ public class Tombstone : Boss
                         actionState = eActionState.START;
                         targetCount = Random.Range(minCount, maxCount);
                         moveCount = 0;
+                        Debug.Log("ready");
                     }
                 }
 
@@ -114,6 +115,7 @@ public class Tombstone : Boss
         {
             if(actionState==eActionState.START)
             {
+                Debug.Log("call");
                 animator.SetBool("attack", true);
                 actionState = eActionState.ACT;
                 StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay));
@@ -135,19 +137,37 @@ public class Tombstone : Boss
         if (target == null)
             return;
 
-        if (target.GroupKey == eGroupKey.BULLET)
+        eGroupKey targetKey = target.GroupKey;
+        if (targetKey == eGroupKey.BULLET)
         {
             Bullet bullet = target as Bullet;
             hp -= bullet.Damage;
             ObjectManager.Instance.RecallObject(collision.gameObject);
         }
-        else if (target.GroupKey==eGroupKey.BOSS)
+        else if (targetKey == eGroupKey.BOSS)
         {
             Boss boss = target as Boss;
             hp = boss.HP;
 
             ObjectManager.Instance.RecallObject(collision.gameObject);
             ObjectManager.Instance.NewObject(eObjectKey.GOOPY_EXPLODE, transform.position);
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (action != eAction.ATTACK)
+            return;
+        Prefab target = collision.gameObject.GetComponent<Prefab>();
+        if (target == null)
+            return;
+
+        eGroupKey targetKey = target.GroupKey;
+        if (targetKey == eGroupKey.PLAYER)
+        {
+            PlayerController player = target as PlayerController;
+            player.Hit();
+            ObjectManager.Instance.NewObject(eObjectKey)
         }
     }
 

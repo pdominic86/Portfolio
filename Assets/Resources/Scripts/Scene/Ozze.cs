@@ -4,8 +4,19 @@ using UnityEngine;
 
 public class Ozze : Scene
 {
+    private void Awake()
+    {
+        camera = FindObjectOfType<CameraController>();
+        activeStart = true;
+    }
+
     private void OnEnable()
     {
+        if(activeStart)
+        {
+            activeStart = false;
+            return;
+        }
         Initialize();
     }
 
@@ -13,26 +24,25 @@ public class Ozze : Scene
     {
         if(player)
             player.SetActive(false);
-        if(boss)
-            ObjectManager.Instance.RecallObject(boss);
+        ObjectManager.Instance.RecallAll();
     }
 
     void Initialize()
     {
-        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
-
         // 플레이어 설정
         player = ObjectManager.Instance.Player;
         player.SetActive(true);
         player.transform.position = playerSpawnPos;
 
         // 보스 설정
-        boss=ObjectManager.Instance.NewObject(eObjectKey.GOOPY, bossSpawnPos);
+        ObjectManager.Instance.NewObject(eObjectKey.GOOPY, bossSpawnPos);
 
         // 카메라 설정
         camera.SetPositionOffset(positionOffset);
         camera.SetTarget(player.transform);
         camera.SetSceneKey(eSceneKey.OZZE);
+
+        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN, transitionOffset);
     }
 
 
@@ -44,6 +54,9 @@ public class Ozze : Scene
     GameObject boss;
     Vector3 playerSpawnPos= new Vector3(-3.5f, -0.3f);
     Vector3 bossSpawnPos= new Vector3(3.5f, -0.3f);
-    Vector3 positionOffset = new Vector3(0f, 2.2f, -10f);
+    Vector3 positionOffset = new Vector3(0f, 2.2f, -2f);
+    Vector3 transitionOffset = new Vector3(-0.3f, 2.2f, 0f);
 
+
+    bool activeStart;
 }

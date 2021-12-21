@@ -220,6 +220,7 @@ public class Goopy : Boss
                             rigidbody.velocity = Vector2.zero;
                             position.y = boundary.yMin;
                             transform.position = position;
+                            ObjectManager.Instance.NewObject(eObjectKey.GOOPY_PHASE2_DUST, transform.position);
                         }
                     }
                     else if (actionState == eActionState.FINISH)
@@ -266,7 +267,8 @@ public class Goopy : Boss
         if (target == null)
             return;
 
-        if (target.GroupKey == eGroupKey.BULLET)
+        eGroupKey targetKey = target.GroupKey;
+        if (targetKey == eGroupKey.BULLET)
         {
             Bullet bullet = target as Bullet;
             hp -= bullet.Damage;
@@ -275,7 +277,19 @@ public class Goopy : Boss
         }
     }
 
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        Prefab target = collision.gameObject.GetComponent<Prefab>();
+        if (target == null)
+            return;
 
+        eGroupKey targetKey = target.GroupKey;
+        if (targetKey == eGroupKey.PLAYER)
+        {
+            PlayerController player = target as PlayerController;
+            player.Hit();
+        }
+    }
 
 
 

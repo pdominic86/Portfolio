@@ -43,7 +43,7 @@ public class Title : Scene
 
 
     public override eSceneKey SceneKey => eSceneKey.TITLE;
-    Vector3 positionOffset = new Vector3(0f, 0f, -10f);
+    Vector3 positionOffset = new Vector3(0f, 0f, -2f);
     bool bInput;
 
     // prompt text ฐüทร
