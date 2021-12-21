@@ -173,11 +173,24 @@ public class PlayerController : Prefab
 
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        Debug.Log(collision.collider.bounds.size);
-    }
+        Prefab target = collider.gameObject.GetComponent<Prefab>();
+        if (target == null)
+            return;
 
+        eGroupKey targetKey = target.GroupKey;
+        if(targetKey==eGroupKey.TRIGGER)
+        {
+            if(Input.GetKey(Keys.KEY_SHOOT))
+            {
+                Trigger trigger = target as Trigger;
+                trigger.ToNextScene();
+                bCanInput = false;
+            }
+        }
+
+    }
 
     // ** self
     void Initialize()

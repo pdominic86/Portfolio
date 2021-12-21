@@ -10,6 +10,11 @@ public class Ozze : Scene
         activeStart = true;
     }
 
+    private void Start()
+    {
+        Initialize();
+    }
+
     private void OnEnable()
     {
         if(activeStart)

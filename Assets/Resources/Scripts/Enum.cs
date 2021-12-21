@@ -23,7 +23,8 @@ public enum eObjectKey
     SCENE_CHANGE_CLOSE,
 
     // trigger
-    TO_TUTORIAL
+    TO_TUTORIAL,
+    TO_WORLD
 };
 
 public enum eGroupKey
@@ -40,6 +41,7 @@ public enum eSceneKey
 {
     TITLE,
     HOUSE,
+    TUTORIAL,
     WORLD,
     OZZE
 }

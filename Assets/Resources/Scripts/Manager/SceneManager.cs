@@ -32,17 +32,17 @@ public class SceneManager : MonoBehaviour
 
     private void Start()
     {
-        /*
         GameObject title = Instantiate<GameObject>(prefabList[eSceneKey.TITLE]);
         sceneList.Add(eSceneKey.TITLE, title);
         currentScene = title.GetComponent<Scene>();
-        */
 
+        /*
         GameObject ozze = Instantiate<GameObject>(prefabList[eSceneKey.OZZE]);
         ozze.SetActive(false);
         sceneList.Add(eSceneKey.OZZE, ozze);
         currentScene = ozze.GetComponent<Scene>();
         ozze.SetActive(true);
+        */
     }
 
 

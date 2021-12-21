@@ -4,17 +4,10 @@ using UnityEngine;
 
 public class ToTutorial : Trigger
 {
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    public override void ToNextScene()
     {
-        
+        SceneManager.Instance.SetScene(eSceneKey.TUTORIAL);
     }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        
-    }
-
     public override eObjectKey ObjectKey => eObjectKey.TO_TUTORIAL;
 
 }

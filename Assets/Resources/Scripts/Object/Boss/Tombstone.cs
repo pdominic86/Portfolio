@@ -167,7 +167,7 @@ public class Tombstone : Boss
         {
             PlayerController player = target as PlayerController;
             player.Hit();
-            ObjectManager.Instance.NewObject(eObjectKey)
+            //zObjectManager.Instance.NewObject(eObjectKey.)
         }
     }
 
