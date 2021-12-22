@@ -8,23 +8,30 @@ public enum eObjectKey
     PLAYER,
     // bullet
     NORMAL_BULLET,
+    // enemy
+    TARGET_BORAD,
     // boss
     GOOPY,
     TOMBSTONE,
     //effect
+    TARGET_BREAK,
     GOOPY_EXPLODE,
     JUMP_DUST_EFFECT,
     DASH_DUST_EFFECT,
     NORMAL_BULLET_HIT,
     NORMAL_BULLET_SHOOT,
     GOOPY_PHASE2_DUST,
+
     // scene transition
     SCENE_CHANGE_OPEN,
     SCENE_CHANGE_CLOSE,
 
     // trigger
     TO_TUTORIAL,
-    TO_WORLD
+    TO_WORLD,
+
+    // plarform
+    PLATFORM
 };
 
 public enum eGroupKey
@@ -34,7 +41,8 @@ public enum eGroupKey
     BOSS,
     ENEMY,
     EFFECT,
-    TRIGGER
+    TRIGGER,
+    PLATFORM
 }
 
 public enum eSceneKey

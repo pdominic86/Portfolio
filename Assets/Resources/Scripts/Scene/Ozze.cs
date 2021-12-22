@@ -7,22 +7,13 @@ public class Ozze : Scene
     private void Awake()
     {
         camera = FindObjectOfType<CameraController>();
-        activeStart = true;
-    }
-
-    private void Start()
-    {
-        Initialize();
+        activeStart = false;
     }
 
     private void OnEnable()
     {
         if(activeStart)
-        {
-            activeStart = false;
-            return;
-        }
-        Initialize();
+            Initialize();
     }
 
     private void OnDisable()
@@ -30,6 +21,7 @@ public class Ozze : Scene
         if(player)
             player.SetActive(false);
         ObjectManager.Instance.RecallAll();
+        activeStart = true;
     }
 
     void Initialize()

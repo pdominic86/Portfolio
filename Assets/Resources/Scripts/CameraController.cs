@@ -14,20 +14,20 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        switch (currentScene)
+        switch (cameraState)
         {
-            case eSceneKey.HOUSE:
-            case eSceneKey.OZZE:
+            case eCameraState.STAY:
+                break;
+
+            case eCameraState.STAGE:
                 if (targetPos)
                 {
                     float offsetX = targetPos.position.x * horizontalRatio * moveRange;
                     transform.position = new Vector3(offsetX, positionOffset.y, positionOffset.z);
                 }
                 break;
-            case eSceneKey.WORLD:
-                break;
-                break;
-            default:
+
+            case eCameraState.FOLLOW:
                 break;
         }
 
@@ -44,20 +44,23 @@ public class CameraController : MonoBehaviour
         transform.position = _offset;
     }
 
-    public void SetSceneKey(eSceneKey _key)
+    public eCameraState CameraState
     {
-        currentScene = _key;
+        get => cameraState;
+        set => cameraState = value;
     }
-
 
 
     Rect screenRect = new Rect(0f, 0f, 16f, 9f);
     Vector3 positionOffset = new Vector3(0f, 0f,-10f);
 
-    eSceneKey currentScene;
+    eCameraState cameraState;
 
     Transform targetPos;
     float moveRange = 0.5f;
     float horizontalRatio;
 
+
+
+    public enum eCameraState { STAY,FOLLOW,STAGE}
 }

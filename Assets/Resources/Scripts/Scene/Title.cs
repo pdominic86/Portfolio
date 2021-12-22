@@ -14,7 +14,7 @@ public class Title : Scene
         ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
         camera = FindObjectOfType<CameraController>();
         camera.SetPositionOffset(positionOffset);
-        camera.SetSceneKey(eSceneKey.TITLE);
+        camera.CameraState = CameraController.eCameraState.STAY;
         bInput = true;
         promptText.enabled = false;
         StartCoroutine(Blink());

@@ -189,7 +189,20 @@ public class PlayerController : Prefab
                 bCanInput = false;
             }
         }
+    }
 
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        Prefab target = collider.gameObject.GetComponent<Prefab>();
+        if (target == null)
+            return;
+
+        eGroupKey targetKey = target.GroupKey;
+        if (targetKey == eGroupKey.PLATFORM)
+        {
+            if (Input.GetKey(Keys.KEY_DOWN) && Input.GetKey(Keys.KEY_JUMP))
+                collision.collider.isTrigger = true;
+        }
     }
 
     // ** self

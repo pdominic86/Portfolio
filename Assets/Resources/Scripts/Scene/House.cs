@@ -4,19 +4,20 @@ using UnityEngine;
 
 public class House : Scene
 {
-    private void Start()
+    public void Awake()
     {
-        Initialize();
+        activeStart = false;
     }
 
     private void OnEnable()
     {
-        if (activeStart)
-        {
-            activeStart = false;
-            return;
-        }
-        Initialize();
+        if(activeStart)
+            Initialize();
+    }
+
+    private void OnDisable()
+    {
+        activeStart = true;
     }
 
     void Initialize()
@@ -33,7 +34,7 @@ public class House : Scene
         // 카메라 설정
         camera.SetPositionOffset(positionOffset);
         camera.SetTarget(player.transform);
-        camera.SetSceneKey(eSceneKey.HOUSE);
+        camera.CameraState = CameraController.eCameraState.STAGE;
 
         ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN, transitionOffset);
     }

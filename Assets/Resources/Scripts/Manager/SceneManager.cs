@@ -53,6 +53,7 @@ public class SceneManager : MonoBehaviour
         if (!sceneList.ContainsKey(nextSceneKey))
         {
             GameObject scene = Instantiate<GameObject>(prefabList[nextSceneKey]);
+            scene.SetActive(false);
             sceneList.Add(nextSceneKey, scene);
         }
         currentScene.gameObject.SetActive(false);
