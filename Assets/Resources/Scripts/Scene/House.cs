@@ -4,20 +4,22 @@ using UnityEngine;
 
 public class House : Scene
 {
-    public void Awake()
+    private void Awake()
     {
-        activeStart = false;
+        base.Awake();
     }
 
     private void OnEnable()
     {
-        if(activeStart)
+        if(active)
             Initialize();
     }
 
     private void OnDisable()
     {
-        activeStart = true;
+        active = true;
+        player.SetActive(false);
+        ObjectManager.Instance.RecallAll();
     }
 
     void Initialize()
@@ -28,29 +30,33 @@ public class House : Scene
         player.transform.position = playerSpawnPos;
 
         // trigger 설정
-        ObjectManager.Instance.NewObject(eObjectKey.TO_TUTORIAL);
-        ObjectManager.Instance.NewObject(eObjectKey.TO_WORLD);
+        GameObject obj = ObjectManager.Instance.NewObject(eObjectKey.TRIGGER, worldPosition);
+        obj.GetComponent<Trigger>().SceneKey = eSceneKey.WORLD;
+        obj = ObjectManager.Instance.NewObject(eObjectKey.TRIGGER, tutorialPosition);
+        obj.GetComponent<Trigger>().SceneKey = eSceneKey.TUTORIAL;
 
         // 카메라 설정
-        camera.SetPositionOffset(positionOffset);
-        camera.SetTarget(player.transform);
+        camera.SetPositionOffset(cameraOffset);
         camera.CameraState = CameraController.eCameraState.STAGE;
+        camera.SetTarget(player.transform);
 
-        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN, transitionOffset);
+        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
     }
 
 
 
     public override eSceneKey SceneKey => eSceneKey.HOUSE;
-    public override Rect Boundary => new Rect(-5.5f, -0.3f, 11f, 9f);
+    public override Rect Boundary => new Rect(-5.8f, -2.5f, 11.2f, 6f);
 
     GameObject player;
     GameObject boss;
-    Vector3 playerSpawnPos = new Vector3(-3.5f, 0f);
-    Vector3 positionOffset = new Vector3(0f, 2.2f, -2f);
-    Vector3 transitionOffset = new Vector3(-0.3f, 2.2f, 0f);
+
+    Vector3 playerSpawnPos = new Vector3(-3.5f, -2.5f);
+    Vector3 cameraOffset = new Vector3(0f, 0f, -2f);
+
+    Vector3 worldPosition = new Vector3(-6f, -1.5f);
+    Vector3 tutorialPosition = new Vector3(-0.2f, -1f);
 
 
-    bool activeStart;
-
+    bool active;
 }

@@ -4,6 +4,12 @@ using UnityEngine;
 
 public abstract class Scene : MonoBehaviour
 {
+    protected void Awake()
+    {
+        camera = FindObjectOfType<CameraController>();
+        active = false;
+    }
+
 
     // Getter & Setter
     public virtual eSceneKey SceneKey { get; }
@@ -17,4 +23,5 @@ public abstract class Scene : MonoBehaviour
     protected Rect boundary;
 
     protected CameraController camera;
+    protected bool active;
 }

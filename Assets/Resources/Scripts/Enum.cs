@@ -6,6 +6,7 @@ public enum eObjectKey
 {
     // player
     PLAYER,
+    PLAYER_WORLD,
     // bullet
     NORMAL_BULLET,
     // enemy
@@ -27,8 +28,10 @@ public enum eObjectKey
     SCENE_CHANGE_CLOSE,
 
     // trigger
-    TO_TUTORIAL,
-    TO_WORLD,
+    TRIGGER,
+
+    // popup
+    BOTTON,
 
     // plarform
     PLATFORM
@@ -42,6 +45,7 @@ public enum eGroupKey
     ENEMY,
     EFFECT,
     TRIGGER,
+    POPUP,
     PLATFORM
 }
 

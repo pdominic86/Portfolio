@@ -7,6 +7,7 @@ public class Title : Scene
 {
     private void Awake()
     {
+        base.Awake();
         promptText = GetComponentInChildren<TextMeshProUGUI>();
     }
     private void OnEnable()

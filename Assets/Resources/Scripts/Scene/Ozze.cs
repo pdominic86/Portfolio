@@ -6,22 +6,20 @@ public class Ozze : Scene
 {
     private void Awake()
     {
-        camera = FindObjectOfType<CameraController>();
-        activeStart = false;
+        base.Awake();
     }
 
     private void OnEnable()
     {
-        if(activeStart)
+        if(active)
             Initialize();
     }
 
     private void OnDisable()
     {
-        if(player)
-            player.SetActive(false);
+        player.SetActive(false);
         ObjectManager.Instance.RecallAll();
-        activeStart = true;
+        active = true;
     }
 
     void Initialize()
@@ -37,7 +35,7 @@ public class Ozze : Scene
         // 카메라 설정
         camera.SetPositionOffset(positionOffset);
         camera.SetTarget(player.transform);
-        camera.SetSceneKey(eSceneKey.OZZE);
+        camera.CameraState = CameraController.eCameraState.STAGE;
 
         ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN, transitionOffset);
     }
@@ -53,7 +51,4 @@ public class Ozze : Scene
     Vector3 bossSpawnPos= new Vector3(3.5f, -0.3f);
     Vector3 positionOffset = new Vector3(0f, 2.2f, -2f);
     Vector3 transitionOffset = new Vector3(-0.3f, 2.2f, 0f);
-
-
-    bool activeStart;
 }
