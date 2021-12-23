@@ -5,11 +5,34 @@ using UnityEngine;
 public abstract class Prefab : MonoBehaviour
 {
     // ** Unity 제공
+    protected void Awake()
+    {
+        bLoad = false;
+    }
+
+    protected void OnEnable()
+    {
+        if (bLoad)
+            Initialize();
+    }
+
+    protected void OnDisable()
+    {
+        bLoad = true;
+    }
+
+
+
+    // ** self
+    protected virtual void Initialize() { }
+
 
     // ** Getter & Setter
     public virtual eObjectKey ObjectKey { get; }
-
     public virtual eGroupKey GroupKey { get; }
+
+
+
 
     public float Direction
     {
@@ -47,8 +70,5 @@ public abstract class Prefab : MonoBehaviour
     protected float angle;
     protected Vector3 forward;
 
-    // object 구분을 위한 key
-    [SerializeField] protected eObjectKey objectKey;
-    [SerializeField] protected eObjectKey groupKey;
-
+    bool bLoad;
 }

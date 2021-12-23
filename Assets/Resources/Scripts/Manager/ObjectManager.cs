@@ -46,10 +46,10 @@ public class ObjectManager : MonoBehaviour
         }
         if (disableList[_key].Count == 0)
         {
-            int size = createSize;
+            int size = 1;
             eGroupKey groupKey = prefabList[_key].GetComponent<Prefab>().GroupKey;
-            if (groupKey == eGroupKey.BOSS || groupKey == eGroupKey.EFFECT)
-                size = 1;
+            if (groupKey == eGroupKey.BULLET)
+                size = createSize;
 
             for (int i = 0; i < size; ++i)
             {

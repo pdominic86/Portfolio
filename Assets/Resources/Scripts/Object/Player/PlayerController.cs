@@ -6,6 +6,7 @@ public class PlayerController : Prefab
 {
     private void Awake()
     {
+        base.Awake();
         rigidbody = gameObject.AddComponent<Rigidbody2D>();
         collider = gameObject.GetComponent<CapsuleCollider2D>();
         animator = GetComponent<Animator>();
@@ -14,9 +15,19 @@ public class PlayerController : Prefab
 
     private void OnEnable()
     {
-        Initialize();
+        base.OnEnable();
     }
 
+    private void OnDisable()
+    {
+        base.OnDisable();
+        animator.SetBool("jump", false);
+        animator.SetBool("run", false);
+        animator.SetBool("shoot", false);
+        animator.SetBool("duck", false);
+        animator.SetBool("dash", false);
+
+    }
 
     void Update()
     {
@@ -108,9 +119,8 @@ public class PlayerController : Prefab
             else
                 animator.SetFloat("shoot_pose", poseFactor);
 
-            if (!bFire)
+            if (!bFire && SceneManager.Instance.CurrentScene.SceneKey!=eSceneKey.HOUSE)
             {
-
                 int angle = 0;
                 if ((offsetIndex & 1) == 0)
                     angle = 180;
@@ -175,38 +185,76 @@ public class PlayerController : Prefab
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        Prefab target = collider.gameObject.GetComponent<Prefab>();
+        Prefab target = collision.gameObject.GetComponent<Prefab>();
         if (target == null)
             return;
 
         eGroupKey targetKey = target.GroupKey;
         if(targetKey==eGroupKey.TRIGGER)
         {
-            if(Input.GetKey(Keys.KEY_SHOOT))
+            if(bCanInput && Input.GetKey(Keys.KEY_SHOOT))
             {
                 Trigger trigger = target as Trigger;
                 trigger.ToNextScene();
                 bCanInput = false;
             }
         }
+        else if(targetKey == eGroupKey.PLATFORM)
+        {
+            if(transform.position.y>collision.transform.position.y)
+                collision.isTrigger = false;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Vector3 position = transform.position;
+        if(position.y>collision.transform.position.y)
+        {
+            if (bJump)
+            {
+                ObjectManager.Instance.NewObject(eObjectKey.JUMP_DUST_EFFECT, transform.position);
+                bJump = false;
+            }
+
+            rigidbody.gravityScale = 0f;
+            rigidbody.velocity = Vector2.zero;
+            animator.SetBool("jump", false);
+        }
+
+        Prefab target = collider.gameObject.GetComponent<Prefab>();
+        if (target == null)
+            return;
+
+        eGroupKey targetKey = target.GroupKey;
+
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        Prefab target = collider.gameObject.GetComponent<Prefab>();
+        Prefab target = collision.gameObject.GetComponent<Prefab>();
         if (target == null)
             return;
 
         eGroupKey targetKey = target.GroupKey;
         if (targetKey == eGroupKey.PLATFORM)
         {
-            if (Input.GetKey(Keys.KEY_DOWN) && Input.GetKey(Keys.KEY_JUMP))
+            if (Input.GetKey(Keys.KEY_DOWN) && Input.GetKey(Keys.KEY_SHOOT))
                 collision.collider.isTrigger = true;
         }
     }
 
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        Vector3 position = transform.position;
+        if (position.y > boundary.yMin)
+        {
+            rigidbody.gravityScale = gravity;
+        }
+    }
+
     // ** self
-    void Initialize()
+    protected override void Initialize()
     {
         // Rigidbody ¼³Á¤
         rigidbody.gravityScale = 0f;

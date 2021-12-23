@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Enemy : Prefab
 {
+
     public override eGroupKey GroupKey => eGroupKey.ENEMY;
     public override eObjectKey ObjectKey { get; }
 

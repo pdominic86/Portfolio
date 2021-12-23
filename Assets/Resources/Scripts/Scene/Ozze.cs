@@ -11,15 +11,15 @@ public class Ozze : Scene
 
     private void OnEnable()
     {
-        if(active)
+        if (bLoad)
             Initialize();
     }
 
     private void OnDisable()
     {
+        base.OnDisable();
         player.SetActive(false);
         ObjectManager.Instance.RecallAll();
-        active = true;
     }
 
     void Initialize()

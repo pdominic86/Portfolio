@@ -18,7 +18,7 @@ public class Title : Scene
         camera.CameraState = CameraController.eCameraState.STAY;
         bInput = true;
         promptText.enabled = false;
-        StartCoroutine(Blink());
+        blink=StartCoroutine(Blink());
     }
 
     private void Update()
@@ -29,6 +29,8 @@ public class Title : Scene
         if (Input.anyKey)
         {
             bInput = false;
+            StopCoroutine(blink);
+            promptText.enabled = false;
             SceneManager.Instance.SetScene(eSceneKey.HOUSE);
         }
     }
@@ -47,6 +49,7 @@ public class Title : Scene
     Vector3 positionOffset = new Vector3(0f, 0f, -2f);
     bool bInput;
 
+    Coroutine blink;
     // prompt text ฐüทร
     TextMeshProUGUI promptText;
     float blinkDelay = 0.5f;

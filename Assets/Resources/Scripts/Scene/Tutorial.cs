@@ -12,16 +12,16 @@ public class Tutorial : Scene
 
     private void OnEnable()
     {
-        if (active)
+        if (bLoad)
             Initialize();
     }
 
     private void OnDisable()
     {
-        active = true;
+        base.OnDisable();
     }
 
-    void Initialize()
+   void Initialize()
     {
         // instructor
         instructor.transform.position = Vector3.zero;
@@ -38,6 +38,11 @@ public class Tutorial : Scene
         Trigger trigger = obj.GetComponent<Trigger>();
         trigger.SceneKey = eSceneKey.HOUSE;
 
+        // platfrom 설정
+        obj = ObjectManager.Instance.NewObject(eObjectKey.PLATFORM, platformSpawnPos);
+        obj.transform.localScale = platformScale;
+        obj.transform.parent = instructor.transform;
+
         // 카메라 설정
         camera.SetPositionOffset(cameraOffset);
         camera.CameraState = CameraController.eCameraState.STAY;
@@ -46,10 +51,10 @@ public class Tutorial : Scene
         ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        Vector3 position = transform.position;
-        if (transform.position.x > stageRange.x && transform.position.x < stageRange.y)
+        Vector3 position = instructor.transform.position;
+        if (position.x > stageRange.x && position.x < stageRange.y)
         {
             Vector3 playerPosition = player.transform.position;
             float diff = 0f;
@@ -71,7 +76,7 @@ public class Tutorial : Scene
             if (bChange)
             {
                 position.x += diff;
-                transform.position = position;
+                instructor.transform.position = position;
                 player.transform.position = playerPosition;
             }
         }
@@ -85,10 +90,14 @@ public class Tutorial : Scene
     Vector3 playerSpawnPos = new Vector3(-3f, -2.5f);
     Vector3 triggerSpawnPos = new Vector3(55.95f, -1f);
     Vector3 triggerScale = new Vector3(1.7f, 2f, 1f);
+    Vector3 platformSpawnPos = new Vector3(16.2f, 0.51f);
+    Vector3 platformScale = new Vector3(2.8f,0.5f, 1f);
+
+
     Vector3 cameraOffset = new Vector3(0f, 0f, -2f);
 
     Vector2 moveRange = new Vector2(-2f, 2f);
-    Vector2 stageRange = new Vector2(0f, 52f);
+    Vector2 stageRange = new Vector2(-54f, 1.5f);
 
     /// 튜토리얼 오브젝트 모음
     GameObject instructor;

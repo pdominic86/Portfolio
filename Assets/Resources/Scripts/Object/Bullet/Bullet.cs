@@ -4,6 +4,21 @@ using UnityEngine;
 
 public abstract class Bullet : Prefab
 {
+    protected void Awake()
+    {
+        base.Awake();
+    }
+
+    protected void OnEnable()
+    {
+        base.OnEnable();
+    }
+
+    protected void OnDisable()
+    {
+        base.OnDisable();
+    }
+
     // ** Getter & Setter
     public override eGroupKey GroupKey => eGroupKey.BULLET; 
     public override eObjectKey ObjectKey { get; }

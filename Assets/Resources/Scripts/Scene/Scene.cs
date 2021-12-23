@@ -7,9 +7,13 @@ public abstract class Scene : MonoBehaviour
     protected void Awake()
     {
         camera = FindObjectOfType<CameraController>();
-        active = false;
+        bLoad = false;
     }
 
+    protected void OnDisable()
+    {
+        bLoad = true;
+    }
 
     // Getter & Setter
     public virtual eSceneKey SceneKey { get; }
@@ -23,5 +27,5 @@ public abstract class Scene : MonoBehaviour
     protected Rect boundary;
 
     protected CameraController camera;
-    protected bool active;
+    protected bool bLoad;
 }

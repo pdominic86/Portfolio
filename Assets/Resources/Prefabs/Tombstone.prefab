@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 3212911670154167794}
   - component: {fileID: 4659841834763522718}
   - component: {fileID: 3380740724812696956}
-  - component: {fileID: 7219533200671608907}
   - component: {fileID: -1731849940651028441}
+  - component: {fileID: 7219533200671608907}
   m_Layer: 0
   m_Name: Tombstone
   m_TagString: Untagged
@@ -104,20 +104,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &7219533200671608907
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6298199602687741881}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d287e671e77c69c4f898609e2a9a5f55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  angle: 0
-  forward: {x: 0, y: 0, z: 0}
 --- !u!70 &-1731849940651028441
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -134,3 +120,17 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 3.12}
   m_Size: {x: 2.04, y: 1.45}
   m_Direction: 1
+--- !u!114 &7219533200671608907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6298199602687741881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d287e671e77c69c4f898609e2a9a5f55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectKey: 0
+  groupKey: 0

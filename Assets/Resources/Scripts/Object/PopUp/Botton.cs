@@ -20,7 +20,9 @@ public class Botton : Popup
         Vector3 scale = Vector3.zero;
         while(scale.x<1f)
         {
+            float delay = Time.deltaTime;
             yield return new WaitForSeconds(delay);
+            delay *= 10;
             scale.x += delay;
             scale.y += delay;
             scale.z += delay;
@@ -34,7 +36,9 @@ public class Botton : Popup
         Vector3 scale = Vector3.one;
         while (scale.x > 0f)
         {
+            float delay = Time.deltaTime;
             yield return new WaitForSeconds(delay);
+            delay *= 10;
             scale.x -= delay;
             scale.y -= delay;
             scale.z -= delay;
@@ -44,8 +48,4 @@ public class Botton : Popup
         ObjectManager.Instance.RecallObject(gameObject);
     }
     public override eObjectKey ObjectKey => eObjectKey.BOTTON;
-
-
-    float delay = 0.05f;
-
 }

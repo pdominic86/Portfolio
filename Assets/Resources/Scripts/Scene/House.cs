@@ -11,19 +11,21 @@ public class House : Scene
 
     private void OnEnable()
     {
-        if(active)
+        if (bLoad)
             Initialize();
     }
 
     private void OnDisable()
     {
-        active = true;
+        base.OnDisable();
         player.SetActive(false);
         ObjectManager.Instance.RecallAll();
     }
 
     void Initialize()
     {
+        Debug.Log(bLoad);
+
         // 플레이어 설정
         player = ObjectManager.Instance.Player;
         player.SetActive(true);
@@ -52,11 +54,8 @@ public class House : Scene
     GameObject boss;
 
     Vector3 playerSpawnPos = new Vector3(-3.5f, -2.5f);
-    Vector3 cameraOffset = new Vector3(0f, 0f, -2f);
+    Vector3 cameraOffset = new Vector3(-0.3f, 0f, -2f);
 
     Vector3 worldPosition = new Vector3(-6f, -1.5f);
     Vector3 tutorialPosition = new Vector3(-0.2f, -1f);
-
-
-    bool active;
 }
