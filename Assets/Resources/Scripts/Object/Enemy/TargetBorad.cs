@@ -19,7 +19,8 @@ public class TargetBorad : Enemy
         if(hp<=0)
         {
             ObjectManager.Instance.RecallObject(gameObject);
-            ObjectManager.Instance.NewObject(eObjectKey.TARGET_BREAK,transform.position);
+            ObjectManager.Instance.NewObject(eObjectKey.EXPLOSION, transform.position);
+            ObjectManager.Instance.NewObject(eObjectKey.EXPLOSION_SIDE, transform.position);
         }
     }
 

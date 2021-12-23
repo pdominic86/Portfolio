@@ -14,8 +14,14 @@ public enum eObjectKey
     // boss
     GOOPY,
     TOMBSTONE,
+    // parry
+    SPHERE,
+
     //effect
-    TARGET_BREAK,
+    PARRY_AURA,
+    PARRY_HIT,
+    EXPLOSION,
+    EXPLOSION_SIDE,
     GOOPY_EXPLODE,
     JUMP_DUST_EFFECT,
     DASH_DUST_EFFECT,
@@ -43,6 +49,7 @@ public enum eGroupKey
     BULLET,
     BOSS,
     ENEMY,
+    PARRY,
     EFFECT,
     TRIGGER,
     POPUP,

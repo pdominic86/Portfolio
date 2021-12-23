@@ -26,7 +26,8 @@ public class PlayerController : Prefab
         animator.SetBool("shoot", false);
         animator.SetBool("duck", false);
         animator.SetBool("dash", false);
-
+        animator.enabled = false;
+        rigidbody.velocity = Vector2.zero;
     }
 
     void Update()
@@ -151,6 +152,14 @@ public class PlayerController : Prefab
             transform.position = position;
         }
 
+        // 패링 관련
+        if(bJump && bCanParry && (input & Keys.jump)!=0)
+        {
+            bCanParry = false;
+            bParry = true;
+            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bParry = false; }, parryInterval));
+        }
+
         // jump 종료 관련
         if (transform.position.y < boundary.yMin)
         {
@@ -159,7 +168,7 @@ public class PlayerController : Prefab
                 ObjectManager.Instance.NewObject(eObjectKey.JUMP_DUST_EFFECT, transform.position);
                 bJump = false;
             }
-
+            bCanParry = true;
             rigidbody.gravityScale = 0f;
             rigidbody.velocity = Vector2.zero;
             position.y = boundary.yMin;
@@ -197,12 +206,24 @@ public class PlayerController : Prefab
                 Trigger trigger = target as Trigger;
                 trigger.ToNextScene();
                 bCanInput = false;
+                gameObject.SetActive(false);
             }
         }
         else if(targetKey == eGroupKey.PLATFORM)
         {
             if(transform.position.y>collision.transform.position.y)
                 collision.isTrigger = false;
+        }
+        else if(targetKey==eGroupKey.PARRY)
+        {
+            if(bParry)
+            {
+
+                Vector3 targetPos = collision.transform.position;
+                ObjectManager.Instance.NewObject(eObjectKey.PARRY_AURA, targetPos);
+                ObjectManager.Instance.NewObject(eObjectKey.PARRY_HIT, targetPos);
+                ObjectManager.Instance.RecallObject(collision.gameObject);
+            }
         }
     }
 
@@ -270,11 +291,14 @@ public class PlayerController : Prefab
 
         // intro
         bCanInput = false;
+        animator.enabled = true;
         animator.SetBool("intro", true);
         StartCoroutine(CoroutineFunc.DelayCoroutine(() => { bCanInput = true; animator.SetBool("intro", false); }, introDelay));
 
         hp = maxHP;
         bHitable = true;
+        bCanParry = true;
+        bParry = false;
     }
 
     public void Hit()
@@ -351,6 +375,10 @@ public class PlayerController : Prefab
     Vector2 jumpForce = new Vector2(0f, 12f);
     float gravity = 2.5f;
     bool bJump;
+    // 패링 관련
+    bool bParry;
+    bool bCanParry;
+    float parryInterval = 0.1f;
 
     // 대쉬 관련
     bool bDash;

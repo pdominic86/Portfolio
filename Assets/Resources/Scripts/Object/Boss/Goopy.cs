@@ -78,9 +78,16 @@ public class Goopy : Boss
                         else if (jumpCount >= targetCount)
                         {
                             if (targetPosition.position.x < transform.position.x && direction > 0f)
-                                Direction = -1f;
+                                direction = -1f;
                             else if (targetPosition.position.x > transform.position.x && direction < 0f)
-                                Direction = 1f;
+                                direction = 1f;
+
+                            Vector3 scale = transform.localScale;
+                            if (direction * scale.x > 0f)
+                            {
+                                scale.x *= -1f;
+                                transform.localScale = scale;
+                            }
 
                             jumpCount = 0;
                             targetCount = Random.Range(minCount, maxCount);
@@ -177,9 +184,16 @@ public class Goopy : Boss
                         else if (jumpCount >= targetCount)
                         {
                             if (targetPosition.position.x < transform.position.x && direction > 0f)
-                                Direction = -1f;
+                                direction = -1f;
                             else if (targetPosition.position.x > transform.position.x && direction < 0f)
-                                Direction = 1f;
+                                direction = 1f;
+
+                            Vector3 scale = transform.localScale;
+                            if (direction * scale.x > 0f)
+                            {
+                                scale.x *= -1f;
+                                transform.localScale = scale;
+                            }
 
                             jumpCount = 0;
                             targetCount = Random.Range(minCount, maxCount);

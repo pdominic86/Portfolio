@@ -13,8 +13,15 @@ public class PlayerWorld : Prefab
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
+
+
     }
 
+
+    void Initialize()
+    {
+        direction = 1f;
+    }
 
 
 
