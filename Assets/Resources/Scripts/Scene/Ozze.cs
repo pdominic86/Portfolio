@@ -38,6 +38,7 @@ public class Ozze : Scene
         camera.CameraState = CameraController.eCameraState.STAGE;
 
         ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN, transitionOffset);
+        StartCoroutine(CoroutineFunc.DelayCoroutine(()=> { ObjectManager.Instance.NewObject(eObjectKey.FIGHT_TEXT, transitionOffset); }, textDelay));
     }
 
 
@@ -51,4 +52,6 @@ public class Ozze : Scene
     Vector3 bossSpawnPos= new Vector3(3.5f, -0.3f);
     Vector3 positionOffset = new Vector3(0f, 2.2f, -2f);
     Vector3 transitionOffset = new Vector3(-0.3f, 2.2f, 0f);
+
+    float textDelay = 1f;
 }

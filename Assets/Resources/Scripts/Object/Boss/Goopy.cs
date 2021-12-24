@@ -128,6 +128,7 @@ public class Goopy : Boss
                             rigidbody.velocity = Vector2.zero;
                             position.y = boundary.yMin;
                             transform.position = position;
+                            ObjectManager.Instance.NewObject(eObjectKey.GOOPY_PHASE1_DUST, transform.position);
                         }
                     }
                     else if (actionState == eActionState.FINISH)

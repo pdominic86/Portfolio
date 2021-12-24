@@ -41,6 +41,7 @@ public class Tombstone : Boss
                     transform.position = position;
 
                     actionState = eActionState.START;
+                    ObjectManager.Instance.NewObject(eObjectKey.TOMBSTONE_INTRO_DUST, transform.position);
                 }
             }
             else if(actionState == eActionState.START)
@@ -105,7 +106,6 @@ public class Tombstone : Boss
                         actionState = eActionState.START;
                         targetCount = Random.Range(minCount, maxCount);
                         moveCount = 0;
-                        Debug.Log("ready");
                     }
                 }
 
@@ -113,9 +113,8 @@ public class Tombstone : Boss
         }
         else if (action == eAction.ATTACK)
         {
-            if(actionState==eActionState.START)
+            if (actionState==eActionState.START)
             {
-                Debug.Log("call");
                 animator.SetBool("attack", true);
                 actionState = eActionState.ACT;
                 StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay));

@@ -28,6 +28,10 @@ public class CameraController : MonoBehaviour
                 break;
 
             case eCameraState.FOLLOW:
+                if (targetPos)
+                {
+                    transform.position = targetPos.position + positionOffset;
+                }
                 break;
         }
 
@@ -52,7 +56,7 @@ public class CameraController : MonoBehaviour
 
 
     Rect screenRect = new Rect(0f, 0f, 16f, 9f);
-    Vector3 positionOffset = new Vector3(0f, 0f,-10f);
+    Vector3 positionOffset = new Vector3(0f, 0f,-2f);
 
     eCameraState cameraState;
 

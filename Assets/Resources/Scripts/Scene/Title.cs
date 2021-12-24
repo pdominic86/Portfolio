@@ -7,19 +7,13 @@ public class Title : Scene
 {
     private void Awake()
     {
-        base.Awake();
         promptText = GetComponentInChildren<TextMeshProUGUI>();
     }
     private void OnEnable()
     {
-        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
-        camera = FindObjectOfType<CameraController>();
-        camera.SetPositionOffset(positionOffset);
-        camera.CameraState = CameraController.eCameraState.STAY;
-        bInput = true;
-        promptText.enabled = false;
-        blink=StartCoroutine(Blink());
+        Initialize();
     }
+
 
     private void Update()
     {
@@ -42,6 +36,17 @@ public class Title : Scene
             yield return new WaitForSeconds(blinkDelay);
             promptText.enabled ^= true;
         }
+    }
+
+    void Initialize()
+    {
+        ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN);
+        camera = FindObjectOfType<CameraController>();
+        camera.SetPositionOffset(positionOffset);
+        camera.CameraState = CameraController.eCameraState.STAY;
+        bInput = true;
+        promptText.enabled = false;
+        blink = StartCoroutine(Blink());
     }
 
 

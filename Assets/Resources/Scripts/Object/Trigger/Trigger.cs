@@ -26,6 +26,7 @@ public class Trigger : Prefab
         if (target == null)
             return;
 
+        Debug.Log("call");
         eGroupKey targetKey = target.GroupKey;
         if (targetKey == eGroupKey.PLAYER)
         {

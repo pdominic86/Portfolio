@@ -218,7 +218,6 @@ public class PlayerController : Prefab
         {
             if(bParry)
             {
-
                 Vector3 targetPos = collision.transform.position;
                 ObjectManager.Instance.NewObject(eObjectKey.PARRY_AURA, targetPos);
                 ObjectManager.Instance.NewObject(eObjectKey.PARRY_HIT, targetPos);
@@ -328,6 +327,8 @@ public class PlayerController : Prefab
         rigidbody.velocity = Vector2.zero;
         rigidbody.gravityScale = gravity;
         rigidbody.AddForce(hitForce, ForceMode2D.Impulse);
+
+        ObjectManager.Instance.NewObject(eObjectKey.HIT, transform.position);
     }
 
     void DashEnd()

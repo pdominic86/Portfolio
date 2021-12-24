@@ -70,5 +70,5 @@ public abstract class Prefab : MonoBehaviour
     protected float angle;
     protected Vector3 forward;
 
-    bool bLoad;
+    protected bool bLoad;
 }

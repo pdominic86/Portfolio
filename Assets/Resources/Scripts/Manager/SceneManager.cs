@@ -73,6 +73,7 @@ public class SceneManager : MonoBehaviour
             StartCoroutine(CoroutineFunc.DelayCoroutine(ToNextScene, transitionDelay));
         }
     }
+
     // ** Getter & Setter
     public Scene CurrentScene => currentScene;
 

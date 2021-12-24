@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3162199418826661913}
   - component: {fileID: 6771720167709845189}
-  - component: {fileID: 8248275229089347617}
   - component: {fileID: 950573293607392690}
+  - component: {fileID: 8248275229089347617}
   m_Layer: 0
   m_Name: ParryHitEffect
   m_TagString: Untagged
@@ -52,18 +52,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &8248275229089347617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7532031136706361838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0103ae130b781fe408006336474c1b54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!212 &950573293607392690
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -103,7 +91,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -115,3 +103,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8248275229089347617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7532031136706361838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0103ae130b781fe408006336474c1b54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
