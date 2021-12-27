@@ -19,7 +19,7 @@ public class SceneManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
 
-        var prefabs = Resources.LoadAll<GameObject>("Scene");
+        var prefabs = Resources.LoadAll<GameObject>("Prefabs/Scene");
         foreach (var prefab in prefabs)
         {
             eSceneKey sceneKey = prefab.GetComponent<Scene>().SceneKey;
@@ -28,6 +28,9 @@ public class SceneManager : MonoBehaviour
                 prefabList.Add(sceneKey, prefab);
             }
         }
+
+        UICanvas = Instantiate<Canvas>(Resources.Load<Canvas>("Prefabs/UICanvas"));
+        UICanvas.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -35,19 +38,10 @@ public class SceneManager : MonoBehaviour
         GameObject title = Instantiate<GameObject>(prefabList[eSceneKey.TITLE]);
         sceneList.Add(eSceneKey.TITLE, title);
         currentScene = title.GetComponent<Scene>();
-
-        /*
-        GameObject ozze = Instantiate<GameObject>(prefabList[eSceneKey.OZZE]);
-        ozze.SetActive(false);
-        sceneList.Add(eSceneKey.OZZE, ozze);
-        currentScene = ozze.GetComponent<Scene>();
-        ozze.SetActive(true);
-        */
     }
 
 
     // ** self
-
     private void ToNextScene()
     {
         if (!sceneList.ContainsKey(nextSceneKey))
@@ -59,19 +53,32 @@ public class SceneManager : MonoBehaviour
         currentScene.gameObject.SetActive(false);
         currentScene = sceneList[nextSceneKey].GetComponent<Scene>();
         currentScene.gameObject.SetActive(true);
+        switch (nextSceneKey)
+        {
+            case eSceneKey.HOUSE:
+            case eSceneKey.TUTORIAL:
+            case eSceneKey.OZZE:
+                StartCoroutine(CoroutineFunc.DelayOnce(() => { UICanvas.gameObject.SetActive(true); }, 1f));
+                break;
+        }
     }
 
 
 
 
-    public void SetScene(eSceneKey _key)
+    public bool SetScene(eSceneKey _key)
     {
         if(prefabList.ContainsKey(_key))
         {
             nextSceneKey = _key;
             ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_CLOSE);
-            StartCoroutine(CoroutineFunc.DelayCoroutine(ToNextScene, transitionDelay));
+            StartCoroutine(CoroutineFunc.DelayOnce(ToNextScene, transitionDelay));
+            currentScene.GetAudioSource().Stop();
+            UICanvas.gameObject.SetActive(false);
+            return true;
         }
+
+        return false;
     }
 
     // ** Getter & Setter
@@ -105,4 +112,6 @@ public class SceneManager : MonoBehaviour
     private float transitionDelay = 1f;
 
     private static SceneManager instance;
+    Canvas UICanvas;
+    GameUI gameUI;
 }

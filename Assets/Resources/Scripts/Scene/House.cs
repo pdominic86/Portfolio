@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class House : Scene
 {
     private void Awake()
@@ -18,7 +17,7 @@ public class House : Scene
     private void OnDisable()
     {
         base.OnDisable();
-        if(player)
+        if(player.activeSelf)
             player.SetActive(false);
         ObjectManager.Instance.RecallAll();
     }

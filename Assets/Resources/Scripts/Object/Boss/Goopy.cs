@@ -6,24 +6,28 @@ public class Goopy : Boss
 {
     private void Awake()
     {
+        base.Awake();
         rigidbody = gameObject.AddComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         var colliders = gameObject.GetComponents<CapsuleCollider2D>();
         mainCollider = colliders[0];
         subCollider = colliders[1];
         subCollider.enabled = false;
-
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
         // 체력
-        maxHp = 300;
+        maxHp = 280;
     }
 
     private void OnEnable()
     {
-        Initialize();
+        if(bLoad)
+            Initialize();
     }
 
     private void OnDisable()
     {
+        base.OnDisable();
         // 물리 영향 없앰
         rigidbody.gravityScale = 0f;
         rigidbody.velocity = Vector2.zero;
@@ -35,14 +39,12 @@ public class Goopy : Boss
             scale.x = -scale.x;
             transform.localScale = scale;
         }
-
     }
 
     void Update()
     {
         switch (phase)
         {
-
             case ePhase.PHASE_1:
                 if (action == eAction.INTRO)
                 {
@@ -50,7 +52,8 @@ public class Goopy : Boss
                     {
                         animator.SetTrigger("intro_phase1");
                         actionState = eActionState.ACT;
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, introDelay_Phase1));
+                        StartCoroutine(CoroutineFunc.DelayOnce(() => { actionState = eActionState.FINISH; }, introDelay_Phase1));
+                        SoundManager.Instance.PlaySound(eSoundKey.GOOPY_PHASE1_INTRO, audioSource);
                     }
                     else if (actionState == eActionState.FINISH)
                     {
@@ -69,17 +72,19 @@ public class Goopy : Boss
                 {
                     if (actionState == eActionState.SELECT)
                     {
+                        if (!target.activeSelf)
+                            return;
                         if (hp < phase2Start)
                         {
                             --minCount;
                             --maxCount;
-                            StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase2, jumpDelay));
+                            StartCoroutine(CoroutineFunc.DelayOnce(ToPhase2, jumpDelay));
                         }
                         else if (jumpCount >= targetCount)
                         {
-                            if (targetPosition.position.x < transform.position.x && direction > 0f)
+                            if (target.transform.position.x < transform.position.x && direction > 0f)
                                 direction = -1f;
-                            else if (targetPosition.position.x > transform.position.x && direction < 0f)
+                            else if (target.transform.position.x > transform.position.x && direction < 0f)
                                 direction = 1f;
 
                             Vector3 scale = transform.localScale;
@@ -91,12 +96,13 @@ public class Goopy : Boss
 
                             jumpCount = 0;
                             targetCount = Random.Range(minCount, maxCount);
-                            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { action = eAction.ATTACK; actionState = eActionState.START; }, jumpDelay));
+                            StartCoroutine(CoroutineFunc.DelayOnce(() => { action = eAction.ATTACK; actionState = eActionState.START; }, jumpDelay));
                         }
                         else
                         {
                             ++jumpCount;
-                            StartCoroutine(CoroutineFunc.DelayCoroutine(Jump, jumpDelay));
+                            StartCoroutine(CoroutineFunc.DelayOnce(Jump, jumpDelay));
+                            SoundManager.Instance.PlaySound(eSoundKey.GOOPY_PHASE1_JUMP, audioSource);
                         }
                         actionState = eActionState.READY;
                     }
@@ -143,8 +149,9 @@ public class Goopy : Boss
                     {
                         animator.SetTrigger("punch");
                         actionState = eActionState.ACT;
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay_Phase1));
+                        StartCoroutine(CoroutineFunc.DelayOnce(() => { actionState = eActionState.FINISH; }, attackDelay_Phase1));
                         subCollider.enabled = true;
+                        SoundManager.Instance.PlaySound(eSoundKey.GOOPY_PHASE1_ATTACK, audioSource);
                     }
                     else if(actionState==eActionState.FINISH)
                     {
@@ -161,7 +168,7 @@ public class Goopy : Boss
                     {
                         animator.SetTrigger("intro_phase2");
                         actionState = eActionState.ACT;
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, introDelay_Phase2));
+                        StartCoroutine(CoroutineFunc.DelayOnce(() => { actionState = eActionState.FINISH; }, introDelay_Phase2));
                     }
                     else if (actionState == eActionState.FINISH)
                     {
@@ -180,13 +187,15 @@ public class Goopy : Boss
                 {
                     if (actionState == eActionState.SELECT)
                     {
+                        if (!target.activeSelf)
+                            return;
                         if (hp < phase3Start)
                             action = eAction.DEATH;
                         else if (jumpCount >= targetCount)
                         {
-                            if (targetPosition.position.x < transform.position.x && direction > 0f)
+                            if (target.transform.position.x < transform.position.x && direction > 0f)
                                 direction = -1f;
-                            else if (targetPosition.position.x > transform.position.x && direction < 0f)
+                            else if (target.transform.position.x > transform.position.x && direction < 0f)
                                 direction = 1f;
 
                             Vector3 scale = transform.localScale;
@@ -198,12 +207,13 @@ public class Goopy : Boss
 
                             jumpCount = 0;
                             targetCount = Random.Range(minCount, maxCount);
-                            StartCoroutine(CoroutineFunc.DelayCoroutine(() => { action = eAction.ATTACK; actionState = eActionState.START; }, jumpDelay));
+                            StartCoroutine(CoroutineFunc.DelayOnce(() => { action = eAction.ATTACK; actionState = eActionState.START; }, jumpDelay));
                         }
                         else
                         {
                             ++jumpCount;
-                            StartCoroutine(CoroutineFunc.DelayCoroutine(Jump, jumpDelay));
+                            StartCoroutine(CoroutineFunc.DelayOnce(Jump, jumpDelay));
+                            SoundManager.Instance.PlaySound(eSoundKey.GOOPY_PHASE2_JUMP, audioSource);
                         }
                         actionState = eActionState.READY;
                     }
@@ -250,8 +260,9 @@ public class Goopy : Boss
                     {
                         animator.SetTrigger("punch");
                         actionState = eActionState.ACT;
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { actionState = eActionState.FINISH; }, attackDelay_Phase2));
+                        StartCoroutine(CoroutineFunc.DelayOnce(() => { actionState = eActionState.FINISH; }, attackDelay_Phase2));
                         subCollider.enabled = true;
+                        SoundManager.Instance.PlaySound(eSoundKey.GOOPY_PHASE2_ATTACK, audioSource);
                     }
                     else if (actionState == eActionState.FINISH)
                     {
@@ -266,29 +277,14 @@ public class Goopy : Boss
                     {
                         actionState = eActionState.ACT;
                         animator.SetBool("death", true);
-                        StartCoroutine(CoroutineFunc.DelayCoroutine(ToPhase3, introDelay_Phase3));
+                        StartCoroutine(CoroutineFunc.DelayOnce(ToPhase3, introDelay_Phase3));
+                        SoundManager.Instance.PlaySound(eSoundKey.GOOPY_DEATH, audioSource);
                     }
                 }
                     break;
 
             default:
                 break;
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Prefab target = collision.gameObject.GetComponent<Prefab>();
-        if (target == null)
-            return;
-
-        eGroupKey targetKey = target.GroupKey;
-        if (targetKey == eGroupKey.BULLET)
-        {
-            Bullet bullet = target as Bullet;
-            hp -= bullet.Damage;
-            ObjectManager.Instance.RecallObject(collision.gameObject);
-            ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET_HIT,collision.transform.position);
         }
     }
 
@@ -304,6 +300,15 @@ public class Goopy : Boss
             PlayerController player = target as PlayerController;
             player.Hit();
         }
+        else if (targetKey == eGroupKey.BULLET && bHitable)
+        {
+            Bullet bullet = target as Bullet;
+            hp -= bullet.Damage;
+            bullet.Hit();
+            bHitable = false;
+            StartCoroutine(CoroutineFunc.DelayOnce(() => { bHitable = true; }, hitDelay));
+            StartCoroutine(Blink());
+        }
     }
 
 
@@ -317,7 +322,7 @@ public class Goopy : Boss
         rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         // Target 설정
-        targetPosition = ObjectManager.Instance.Player.transform;
+        target = ObjectManager.Instance.Player;
 
         mainCollider.direction = CapsuleDirection2D.Horizontal;
         mainCollider.offset = new Vector2(0f, 0.88f);
@@ -341,9 +346,12 @@ public class Goopy : Boss
         // jump count
         jumpCount = 0;
         targetCount = 0;
+        minCount = 4;
+        maxCount = 7;
 
         //체력
         hp = maxHp;
+        bHitable = true;
     }
 
     // 점프 함수
@@ -370,6 +378,7 @@ public class Goopy : Boss
         boundary = SceneManager.Instance.CurrentScene.Boundary;
         boundary.xMin += mainCollider.offset.x + mainCollider.size.x * 0.5f;
         boundary.xMax += mainCollider.offset.x - mainCollider.size.x * 0.5f;
+        SoundManager.Instance.PlaySound(eSoundKey.GOOPY_PHASE2_INTRO, audioSource);
     }
 
     private void ToPhase3()
@@ -377,6 +386,24 @@ public class Goopy : Boss
         ObjectManager.Instance.NewObject(eObjectKey.TOMBSTONE, transform.position + new Vector3(0f, height));
     }
 
+    IEnumerator Blink()
+    {
+        float timeSpend = 0f;
+        bFade = true;
+        while (timeSpend<blinkTime)
+        {
+            timeSpend += blinkDelay;
+            if (!bFade)
+                spriteRenderer.color = full;
+            else
+                spriteRenderer.color = fade;
+            bFade ^= true;
+            yield return new WaitForSeconds(blinkDelay);
+        }
+
+        bFade = false;
+        spriteRenderer.color = full;
+    }
 
     // **  Getter && Setter
     public override eObjectKey ObjectKey  => eObjectKey.GOOPY; 
@@ -391,11 +418,11 @@ public class Goopy : Boss
     bool bDownForce;
 
     // 점프 관련
-    Transform targetPosition;
+    GameObject target;
     int jumpCount;
     int targetCount;
-    int minCount = 4;
-    int maxCount = 8;
+    int minCount;
+    int maxCount;
 
     // 상태 관련
     [SerializeField] ePhase phase;
@@ -418,11 +445,20 @@ public class Goopy : Boss
     // 충돌 관련
     CapsuleCollider2D mainCollider;
     CapsuleCollider2D subCollider;
-    const int phase2Start = 280;
-    const int phase3Start = 260;
+    const int phase2Start = 200;
+    const int phase3Start = 90;
+    bool bHitable;
+    float hitDelay = 0.05f;
 
-    // coroutine 사용 함수
-    delegate void DelayAction();
+    // hit effect 관련
+    SpriteRenderer spriteRenderer;
+    bool bFade;
+    float blinkDelay = 0.05f;
+    float blinkTime = 0.3f;
+    Color full = Color.white;
+    Color fade = new Color(1f, 1f, 1f, 0.5f);
+
+    AudioSource audioSource;
 
     enum ePhase { PHASE_1, PHASE_2 }
     enum eAction { INTRO, IDLE, JUMP, ATTACK, DEATH }

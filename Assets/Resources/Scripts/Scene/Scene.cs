@@ -7,6 +7,7 @@ public abstract class Scene : MonoBehaviour
     protected void Awake()
     {
         camera = FindObjectOfType<CameraController>();
+        audioSource = GetComponent<AudioSource>();
         bLoad = false;
     }
 
@@ -18,7 +19,10 @@ public abstract class Scene : MonoBehaviour
     // Getter & Setter
     public virtual eSceneKey SceneKey { get; }
     public virtual Rect Boundary { get; }
-
+    public AudioSource GetAudioSource()
+    {
+        return audioSource;
+    }
 
 
 
@@ -27,5 +31,6 @@ public abstract class Scene : MonoBehaviour
     protected Rect boundary;
 
     protected CameraController camera;
+    protected AudioSource audioSource;
     protected bool bLoad;
 }

@@ -27,14 +27,10 @@ public class NormalBullet : Bullet
 
 
     // ** self-defined
-    // Boundary ¼³Á¤
-    private void SetBoundry()
+    public override void Hit()
     {
-        boundary = SceneManager.Instance.CurrentScene.Boundary;
-        boundary.xMin += -1f;
-        boundary.xMax += 1f;
-        boundary.yMin += -1f;
-        boundary.yMax += 1f;
+        ObjectManager.Instance.RecallObject(gameObject);
+        ObjectManager.Instance.NewObject(eObjectKey.NORMAL_BULLET_HIT, transform.position);
     }
 
     // ** Getter & Setter

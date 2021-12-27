@@ -18,7 +18,8 @@ public class Ozze : Scene
     private void OnDisable()
     {
         base.OnDisable();
-        player.SetActive(false);
+        if(player.activeSelf)
+            player.SetActive(false);
         ObjectManager.Instance.RecallAll();
     }
 
@@ -38,9 +39,23 @@ public class Ozze : Scene
         camera.CameraState = CameraController.eCameraState.STAGE;
 
         ObjectManager.Instance.NewObject(eObjectKey.SCENE_CHANGE_OPEN, transitionOffset);
-        StartCoroutine(CoroutineFunc.DelayCoroutine(()=> { ObjectManager.Instance.NewObject(eObjectKey.FIGHT_TEXT, transitionOffset); }, textDelay));
+        StartCoroutine(CoroutineFunc.DelayOnce(()=> { ObjectManager.Instance.NewObject(eObjectKey.FIGHT_TEXT, transitionOffset); }, textDelay));
+
+        bEnd = false;
     }
 
+    private void Update()
+    {
+        if(!bEnd && !player.activeSelf)
+        {
+            bEnd = true;
+            Vector3 position = camera.transform.position;
+            position.z = 0f;
+            ObjectManager.Instance.NewObject(eObjectKey.DEAD_TEXT, position);
+            StartCoroutine(CoroutineFunc.DelayOnce(() => { SceneManager.Instance.SetScene(eSceneKey.WORLD); }, 4f));
+            audioSource.Stop();
+        }
+    }
 
 
     public override eSceneKey SceneKey => eSceneKey.OZZE;
@@ -54,4 +69,5 @@ public class Ozze : Scene
     Vector3 transitionOffset = new Vector3(-0.3f, 2.2f, 0f);
 
     float textDelay = 1f;
+    bool bEnd;
 }

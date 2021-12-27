@@ -35,6 +35,7 @@ public class TargetBorad : Enemy
         {
             Bullet bullet = target as Bullet;
             hp -= bullet.Damage;
+            bullet.Hit();
         }
     }
     public override eObjectKey ObjectKey => eObjectKey.TARGET_BORAD;

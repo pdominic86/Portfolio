@@ -17,7 +17,7 @@ public class ObjectManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
 
-        var prefabs = Resources.LoadAll<GameObject>("Prefabs");
+        var prefabs = Resources.LoadAll<GameObject>("Prefabs/Object");
         foreach(var prefab in prefabs)
         {
             eObjectKey key = prefab.GetComponent<Prefab>().ObjectKey;
@@ -96,6 +96,7 @@ public class ObjectManager : MonoBehaviour
 
         if(enableList[key].Remove(_obj))
         {
+            _obj.transform.parent = null;
             _obj.SetActive(false);
             disableList[key].Enqueue(_obj);
         }
@@ -112,6 +113,7 @@ public class ObjectManager : MonoBehaviour
                 GameObject obj = objList.Last.Value;
                 objList.RemoveLast();
                 eObjectKey key = obj.GetComponent<Prefab>().ObjectKey;
+                obj.transform.parent = null;
                 obj.SetActive(false);
                 disableList[key].Enqueue(obj);
             }

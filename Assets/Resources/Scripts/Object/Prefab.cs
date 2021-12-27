@@ -10,12 +10,6 @@ public abstract class Prefab : MonoBehaviour
         bLoad = false;
     }
 
-    protected void OnEnable()
-    {
-        if (bLoad)
-            Initialize();
-    }
-
     protected void OnDisable()
     {
         bLoad = true;
@@ -24,7 +18,7 @@ public abstract class Prefab : MonoBehaviour
 
 
     // ** self
-    protected virtual void Initialize() { }
+    public virtual void Hit() { }
 
 
     // ** Getter & Setter
@@ -41,7 +35,7 @@ public abstract class Prefab : MonoBehaviour
         {
             direction = (value < 0f ? -1f : 1f);
             Vector3 scale = transform.localScale;
-            if(direction*scale.x<-1f)
+            if(direction*scale.x<0f)
             {
                 scale.x *= -1f;
                 transform.localScale = scale;

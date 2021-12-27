@@ -6,7 +6,7 @@ public abstract class Effect : Prefab
 {
     protected void Initialize(float _time)
     {
-        StartCoroutine(CoroutineFunc.DelayCoroutine(() => { ObjectManager.Instance.RecallObject(gameObject); }, _time));
+        StartCoroutine(CoroutineFunc.DelayOnce(() => { ObjectManager.Instance.RecallObject(gameObject); }, _time));
     }
 
 

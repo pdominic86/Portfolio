@@ -9,14 +9,19 @@ public abstract class Bullet : Prefab
         base.Awake();
     }
 
-    protected void OnEnable()
-    {
-        base.OnEnable();
-    }
-
     protected void OnDisable()
     {
         base.OnDisable();
+    }
+
+
+    protected void SetBoundry()
+    {
+        boundary = SceneManager.Instance.CurrentScene.Boundary;
+        boundary.xMin += -1f;
+        boundary.xMax += 1f;
+        boundary.yMin += -1f;
+        boundary.yMax += 1f;
     }
 
     // ** Getter & Setter

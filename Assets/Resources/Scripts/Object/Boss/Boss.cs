@@ -4,6 +4,16 @@ using UnityEngine;
 
 public abstract class Boss : Prefab
 {
+    protected void Awake()
+    {
+        base.Awake();
+    }
+
+    private void OnDisable()
+    {
+        base.OnDisable();
+    }
+
     // ** Getter & Setter
     public override eGroupKey GroupKey => eGroupKey.BOSS; 
     public override eObjectKey ObjectKey { get; }
@@ -13,5 +23,5 @@ public abstract class Boss : Prefab
 
     // ** Field
     protected int maxHp;
-    protected int hp;
+    [SerializeField]protected int hp;
 }

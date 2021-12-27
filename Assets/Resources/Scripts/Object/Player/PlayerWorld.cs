@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerWorld : Prefab
+public class PlayerWorld : Player
 {
     private void Awake()
     {
@@ -91,7 +91,7 @@ public class PlayerWorld : Prefab
             if(bCanInput && Input.GetKey(Keys.KEY_SHOOT))
             {
                 Trigger trigger = target as Trigger;
-                trigger.ToNextScene();
+                trigger.ShowScene(this);
                 bCanInput = false;
             }
         }
@@ -105,14 +105,14 @@ public class PlayerWorld : Prefab
         direction = 1f;
         directionFactor = 0f;
 
-        bCanInput = true;
+        bCanInput = false;
+        StartCoroutine(CoroutineFunc.DelayOnce(() => { bCanInput = true; }, 1f));
     }
 
 
 
 
-    public override eObjectKey ObjectKey { get => eObjectKey.PLAYER_WORLD; }
-    public override eGroupKey GroupKey { get => eGroupKey.PLAYER; }
+    public override eObjectKey ObjectKey=> eObjectKey.PLAYER_WORLD;
 
 
 
@@ -121,6 +121,4 @@ public class PlayerWorld : Prefab
     float speed = 3f;
 
     Animator animator;
-
-    bool bCanInput;
 }

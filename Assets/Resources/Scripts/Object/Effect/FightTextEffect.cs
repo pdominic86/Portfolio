@@ -6,7 +6,7 @@ public class FightTextEffect : Effect
 {
     private void Awake()
     {
-        endTime = 3f;
+        endTime = 2.5f;
     }
 
     private void OnEnable()

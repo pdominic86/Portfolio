@@ -13,6 +13,6 @@ public class JumpDustEffect : Effect
     {
         Initialize(endTime);
     }
-    public override eObjectKey ObjectKey => eObjectKey.JUMP_DUST_EFFECT;
+    public override eObjectKey ObjectKey => eObjectKey.JUMP_DUST;
 
 }

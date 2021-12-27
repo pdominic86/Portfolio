@@ -13,5 +13,5 @@ public class DashDustEffect : Effect
     {
         Initialize(endTime);
     }
-    public override eObjectKey ObjectKey => eObjectKey.DASH_DUST_EFFECT;
+    public override eObjectKey ObjectKey => eObjectKey.DASH_DUST;
 }

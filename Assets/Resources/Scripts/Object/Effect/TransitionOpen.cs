@@ -6,7 +6,7 @@ public class TransitionOpen : Effect
 {
     private void Awake()
     {
-        endTime = 1f;
+        endTime = 1.4f;
     }
 
     private void OnEnable()

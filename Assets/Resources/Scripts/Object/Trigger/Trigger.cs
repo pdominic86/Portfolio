@@ -11,7 +11,7 @@ public class Trigger : Prefab
             return;
 
         eGroupKey targetKey = target.GroupKey;
-        if(targetKey==eGroupKey.PLAYER)
+        if(targetKey==eGroupKey.PLAYER && instruct==null)
         {
             float y = SceneManager.Instance.CurrentScene.Boundary.yMin;
             y += popupY;
@@ -26,18 +26,40 @@ public class Trigger : Prefab
         if (target == null)
             return;
 
-        Debug.Log("call");
         eGroupKey targetKey = target.GroupKey;
         if (targetKey == eGroupKey.PLAYER)
         {
             instruct.Recall();
+            instruct = null;
         }
     }
 
-
-    public void ToNextScene()
+    private void OnEnable()
     {
-        SceneManager.Instance.SetScene(sceneKey);
+        instruct = null;
+    }
+
+
+    public void ShowScene(Prefab _target)
+    {
+        if(SceneManager.Instance.CurrentScene.SceneKey==eSceneKey.WORLD)
+        {
+            eObjectKey cardKey=0;
+            switch(sceneKey)
+            {
+                case eSceneKey.HOUSE:
+                    cardKey = eObjectKey.STAGE_CARD_HOUSE;
+                    break;
+                case eSceneKey.OZZE:
+                    cardKey = eObjectKey.STAGE_CARD_OZZE;
+                    break;
+            }
+            GameObject obj = ObjectManager.Instance.NewObject(cardKey, _target.transform.position);
+            Popup popup = obj.GetComponent<Popup>();
+            popup.SetPlayer(_target as Player);
+        }
+        else
+            SceneManager.Instance.SetScene(sceneKey);
     }
 
     public eSceneKey SceneKey
